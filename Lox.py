@@ -1,11 +1,21 @@
+import os
+
 class Lox:
-    @staticmethod
-    def main(*args):
+
+    @classmethod
+    def main(cls, *args):
         if len(args) > 1:
             print("Usage: pylox [script]")
         if len(args) == 1:
-            print("running file")
-            #runfile args[0]
+            cls.runfile(args[0])
         else:
-            print("running prompt")
-            #runprompt
+            cls.run_prompt()
+
+
+    @classmethod
+    def run_file(cls, file):
+        os.system(f"python3 {file}")
+
+    @classmethod
+    def run_prompt(cls):
+        # Run prompt
