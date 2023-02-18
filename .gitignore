@@ -1,7 +1,8 @@
 .idea/
 __pycache__/
 .vscode/
-test.lox
 scratchpad.txt
+temp/
+test.lox
 test.txt
 

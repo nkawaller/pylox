@@ -1,4 +1,4 @@
-import os
+import fileinput
 import sys
 
 class Lox:
@@ -16,13 +16,20 @@ class Lox:
             cls.run_prompt()
 
     @classmethod
-    def run_file(cls, file):
-        with open(file, "r") as reader:
-            print(reader.read())
+    def run_file(cls, path):
+        with open(path, "rb") as reader:
+            all_bytes = reader.readline()
+            cls.run(all_bytes)
 
     @classmethod
     def run_prompt(cls):
-        print("running prompt")
+        for line in fileinput.input(encoding="utf-8"):
+            cls.run(line)
+
+    @classmethod
+    def run(cls, source):
+        print(source)
+
 
 if __name__ == '__main__':
     Lox.main()
