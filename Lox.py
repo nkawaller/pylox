@@ -1,4 +1,3 @@
-import fileinput
 import sys
 
 class Lox:
@@ -23,11 +22,24 @@ class Lox:
 
     @classmethod
     def run_prompt(cls):
-        for line in fileinput.input(encoding="utf-8"):
-            cls.run(line)
+        try:
+            while True:
+                line = input("> ")
+                cls.run(line)
+        except EOFError:
+            print("\nReached end of file, closing prompt")
+        except KeyboardInterrupt:
+            print("\nClosing prompt...")
 
     @classmethod
     def run(cls, source):
+        """
+        Create a Scanner instance here:
+            Scanner scanner = new Scanner(source);
+            List<Token> tokens = scanner.scanTokens();
+            for token in tokens:
+                print(token)
+        """
         print(source)
 
 
