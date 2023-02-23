@@ -1,9 +1,20 @@
+"""Entry point for the Lox language.
+
+Use this class to run Lox programs via script or 
+interactive prompt.
+
+Usage:
+    script:
+        python3 Lox.py [script]
+    prompt:
+        python3 Lox.py
+"""
 import sys
 
-class Lox:
 
+class Lox:
     args = sys.argv[1:]
-    hadError = False
+    had_error = False
 
     @classmethod
     def main(cls):
@@ -21,7 +32,7 @@ class Lox:
             with open(path, "rb") as reader:
                 all_bytes = reader.readline()
                 cls.run(all_bytes)
-                if cls.hadError: # May need to adjust this
+                if cls.had_error:  # May need to adjust this
                     sys.exit(1)
         except FileNotFoundError:
             print("Sorry, we could't find that file")
@@ -33,10 +44,8 @@ class Lox:
                 line = input("> ")
                 if line == ".exit":
                     sys.exit(0)
-                if line == "error!":
-                    cls.error(1, "You have an error")
                 cls.run(line)
-                cls.hadError = False # May need to adjust this
+                cls.had_error = False  # May need to adjust this
 
         except EOFError:
             print("\nUser entered control-d, exiting...")
@@ -64,6 +73,5 @@ class Lox:
         print(f"[line {line}] Error {where}:{message}")
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     Lox.main()
