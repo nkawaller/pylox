@@ -77,9 +77,51 @@ class Scanner:
             else:
                 self.add_token(SLASH)
             break
-        else:
-            Lox.error(self.line, "Unexpected character.")
+        elif c == ' ' or '\r' or '\t':
             break
+        elif c == '\n':
+            line += 1
+            break
+        elif c == '"':
+            self.string()
+            break
+        else:
+            if self.is_digit(c):
+                self.number()
+            else:
+                Lox.error(self.line, "Unexpected character.")
+            break
+
+    def number(self):
+        while self.is_digit(self.peek()):
+            self.advance()
+        if self.peek() == '.' and self.is_digit(self.peek_next()):
+            self.advance()
+
+            while self.is_digit(self.peek()):
+                self.advance()
+
+        # TODO: Need to sort this out
+        # should I just cast to a float?
+        # the goal is to use python to convert the lexeme to a real double
+        self.add_token(NUMBER, Double.parseDouble(source.substring(start, current)))
+
+    def string(self):
+        while self.peek() is not '"' and not self.is_at_end():
+            if self.peek() == '\n':
+                line += 1
+            self.advance()
+
+        if self.is_at_end():
+            Lox.error(self.line, "Undetermined string.");
+            return
+
+        self.advance()
+        # TODO: probably handle substring with slice[:]
+        # All it's doing anyway is stripping of the opening
+        # and closing quotes
+        value = self.source.substring(self.start + 1, self.current - 1)
+        self.add_token(value)
 
     def match(self, expected):
         """Like a conditional advance()"""
@@ -95,6 +137,16 @@ class Scanner:
         if self.is_at_end():
             return '\0'
         return self.source.charAt(self.current)
+
+    def peek_next(self):
+        if self.current + 1 >= len(self.source()):
+            return '\0'
+        # TODO: find the charAt equivalent  
+        return self.source.charAt(self.current + 1)
+
+    def is_digit(self, c):
+        # Should these be integers instead of strings?
+        return c >= '0' and c <= '9'
 
     def is_at_end(self):
         return self.current >= len(self.source)
