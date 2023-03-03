@@ -1,5 +1,6 @@
 """Scanner class"""
 
+from logging.config import IDENTIFIER
 from lox import Lox
 from tokentypes import TokenType
 from token import Token
@@ -15,6 +16,25 @@ class Scanner:
         self.start = 0
         self.current = 0
         self.line = 1
+
+    keywords = {
+        "and":    TokenType.AND,
+        "class":  TokenType.CLASS,
+        "else":   TokenType.ELSE,
+        "false":  TokenType.FALSE,
+        "for":    TokenType.FOR,
+        "fun":    TokenType.FUN,
+        "if":     TokenType.IF,
+        "nil":    TokenType.NIL,
+        "or":     TokenType.OR,
+        "print":  TokenType.PRINT,
+        "return": TokenType.RETURN,
+        "super":  TokenType.SUPER,
+        "this":   TokenType.THIS,
+        "true":   TokenType.TRUE,
+        "var":    TokenType.VAR,
+        "while":  TokenType.WHILE
+    }
 
 
     def scan_tokens(self):
@@ -88,9 +108,21 @@ class Scanner:
         else:
             if self.is_digit(c):
                 self.number()
+            elif self.is_alpha(c):
+                self.identifier()
             else:
                 Lox.error(self.line, "Unexpected character.")
             break
+
+    def identifier(self):
+        while self.is_alpha_numeric(peek()):
+            self.advance()
+        # TODO: replace substring
+        text = self.source.substring(self.start, self.current)
+        type = self.keywords.get(text, None)
+        if type is None:
+            type = IDENTIFIER
+        self.add_token(IDENTIFIER)
 
     def number(self):
         while self.is_digit(self.peek()):
@@ -143,6 +175,12 @@ class Scanner:
             return '\0'
         # TODO: find the charAt equivalent  
         return self.source.charAt(self.current + 1)
+
+    def is_alpha(self, c):
+        return c >= 'a' and c <= 'z' or c >= 'A' and c <= 'Z' or c == '_'
+    
+    def is_alpha_numeric(self, c):
+        return self.is_alpha(c) or self.is_digit(c)
 
     def is_digit(self, c):
         # Should these be integers instead of strings?
