@@ -10,6 +10,7 @@ Usage:
         python3 Lox.py
 """
 import sys
+import scanner
 
 
 class Lox:
@@ -29,8 +30,8 @@ class Lox:
     @classmethod
     def run_file(cls, path):
         try:
-            with open(path, "rb") as reader:
-                all_bytes = reader.readline()
+            with open(path, "r") as reader:
+                all_bytes = reader.read()
                 cls.run(all_bytes)
                 if cls.had_error:  # May need to adjust this
                     sys.exit(1)
@@ -54,15 +55,11 @@ class Lox:
 
     @classmethod
     def run(cls, source):
-        """
-        Create a Scanner instance here:
-            Scanner scanner = new Scanner(source);
-            List<Token> tokens = scanner.scanTokens();
-            for token in tokens:
-                print(token)
-        """
-        if source:
-            print(source)
+        s = scanner.Scanner(source)
+        tokens = s.scan_tokens()
+        print(tokens)
+        # for token in tokens:
+            # print(token)
 
     @classmethod
     def error(cls, line, message):
