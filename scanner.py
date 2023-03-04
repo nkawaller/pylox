@@ -1,8 +1,9 @@
 """Scanner class"""
 
+from re import A
 import lox
-from tokentypes import TokenType
-# from token import Token
+import tokentypes
+import token
 
 class Scanner:
     """The scanner consumes source code, groups lexemes together
@@ -35,55 +36,42 @@ class Scanner:
     #     "while":  TokenType.WHILE
     # }
 
-
     def scan_tokens(self):
         """Take in the source code as a single string. Append tokens
         to the token list as we find them and return the list when 
         we're done.
         """
-        for c in self.source:
-            self.tokens.append(c)
+
+        while not self.is_at_end():
+            self.start = self.current
+            self.scan_token()
+
+        """This just appends one final end of file token at the end - not necessary"""
+        self.tokens.append(token.Token(tokentypes.TokenType.EOF, "", None, self.line))
         return self.tokens
-        # while not self.is_at_end:
-        #     start = self.current
-        #     self.scan_token()
 
-        # self.tokens.append(Token(TokenType.EOF, "", None, self.line))
-        # return self.tokens
-
-    # def scan_token(self):
-    #     # TODO: May need this in a while loop, need an else at the end
-    #     c = advance()
-    #     if c == '(':
-    #         add_token(LEFT_PAREN)
-    #         break
-    #     elif c == ')':
-    #         add_token(RIGHT_PAREN)
-    #         break
-    #     elif c == '{':
-    #         add_token(LEFT_BRACE)
-    #         break
-    #     elif c == '}':
-    #         add_token(RIGHT_BRACE)
-    #         break
-    #     elif c == ',':
-    #         add_token(COMMA)
-    #         break
-    #     elif c == '.':
-    #         add_token(DOT)
-    #         break
-    #     elif c == '-':
-    #         add_token(MINUS)
-    #         break
-    #     elif c == '+':
-    #         add_token(PLUS)
-    #         break
-    #     elif c == ';':
-    #         add_token(SEMICOLON)
-    #         break
-    #     elif c == '*':
-    #         add_token(STAR)
-    #         break
+    def scan_token(self):
+        c = self.advance()
+        if c == '(':
+            self.add_token(tokentypes.TokenType.LEFT_PAREN)
+        elif c == ')':
+            self.add_token(tokentypes.TokenType.RIGHT_PAREN)
+        elif c == '{':
+            self.add_token(tokentypes.TokenType.LEFT_BRACE)
+        elif c == '}':
+            self.add_token(tokentypes.TokenType.RIGHT_BRACE)
+        elif c == ',':
+            self.add_token(tokentypes.TokenType.COMMA)
+        elif c == '.':
+            self.add_token(tokentypes.TokenType.DOT)
+        elif c == '-':
+            self.add_token(tokentypes.TokenType.MINUS)
+        elif c == '+':
+            self.add_token(tokentypes.TokenType.PLUS)
+        elif c == ';':
+            self.add_token(tokentypes.TokenType.SEMICOLON)
+        elif c == '*':
+            self.add_token(tokentypes.TokenType.STAR)
     #     elif c == '!':
     #         add_token(BANG_EQUAL if self.match('=') else BANG)
     #         break
@@ -192,17 +180,23 @@ class Scanner:
     #     # Should these be integers instead of strings?
     #     return c >= '0' and c <= '9'
 
-    # def is_at_end(self):
-    #     return self.current >= len(self.source)
+    def is_at_end(self):
+        return self.current >= len(self.source)
 
-    # def advance(self):
-    #     # charAt looks at a string, and gives you the char for the
-    #     # index you provide
-    #     return self.source.charAt(self.current += 1)
+    def advance(self):
+        curr = self.source[self.current]
+        self.current += 1
+        return curr
 
     # def add_token(self, type):
     #     add_token(type, None)
 
+    def add_token(self, type):
+        # text = self.source[self.start : self.current]
+        text = self.source[self.start : self.current]
+        self.tokens.append(token.Token(type, text, None, None))
+
+
     # def add_token(self, type, literal):
     #     text = self.source.substring(self.start, self.current)
-    #     self.tokens.add(Token(type, text, literal, self.line))
+    #     self.tokens.add(token.Token(type, text, literal, self.line))

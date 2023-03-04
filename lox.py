@@ -59,7 +59,7 @@ class Lox:
         tokens = s.scan_tokens()
         print(tokens)
         # for token in tokens:
-            # print(token)
+        #     print(token.__str__())
 
     @classmethod
     def error(cls, line, message):
