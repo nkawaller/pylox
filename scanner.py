@@ -1,13 +1,12 @@
 """Scanner class"""
 
-from re import A
 import lox
 import tokentypes
 import token
 
 class Scanner:
-    """The scanner consumes source code, groups lexemes together
-    and outputs tokens
+    """The scanner consumes source code, groups lexemes together and
+    outputs tokens
     """
 
     def __init__(self, source):
@@ -46,8 +45,8 @@ class Scanner:
             self.start = self.current
             self.scan_token()
 
-        """This just appends one final end of file token at the end - not necessary"""
-        self.tokens.append(token.Token(tokentypes.TokenType.EOF, "", None, self.line))
+        self.tokens.append(token.Token(
+                    tokentypes.TokenType.EOF, "", None, self.line))
         return self.tokens
 
     def scan_token(self):
@@ -72,18 +71,22 @@ class Scanner:
             self.add_token(tokentypes.TokenType.SEMICOLON)
         elif c == '*':
             self.add_token(tokentypes.TokenType.STAR)
-    #     elif c == '!':
-    #         add_token(BANG_EQUAL if self.match('=') else BANG)
-    #         break
-    #     elif c == '=':
-    #         add_token(EQUAL_EQUAL if self.match('=') else EQUAL)
-    #         break
-    #     elif c == '<':
-    #         add_token(LESS_EQUAL if self.match('=') else LESS)
-    #         break
-    #     elif c == '>':
-    #         add_token(GREATER_EQUAL if self.match('=') else GREATER)
-    #         break
+        elif c == '!':
+            self.add_token(tokentypes.TokenType.BANG_EQUAL 
+                           if self.match('=') 
+                           else tokentypes.TokenType.BANG)
+        elif c == '=':
+            self.add_token(tokentypes.TokenType.EQUAL_EQUAL 
+                           if self.match('=') 
+                           else tokentypes.TokenType.EQUAL)
+        elif c == '<':
+            self.add_token(tokentypes.TokenType.LESS_EQUAL 
+                           if self.match('=') 
+                           else tokentypes.TokenType.LESS)
+        elif c == '>':
+            self.add_token(tokentypes.TokenType.GREATER_EQUAL 
+                           if self.match('=') 
+                           else tokentypes.TokenType.GREATER)
     #     elif c == '/':
     #         if match('/'):
     #             while peek() is not '\n' and not self.is_at_end:
@@ -149,14 +152,18 @@ class Scanner:
     #     value = self.source.substring(self.start + 1, self.current - 1)
     #     self.add_token(value)
 
-    # def match(self, expected):
-    #     """Like a conditional advance()"""
-    #     if self.is_at_end():
-    #         return False
-    #     if self.source.charAt(self.current) is not expected:
-    #         return False
-    #     self.current += 1
-    #     return True
+    def match(self, expected):
+        """This method is like a conditional advance(). Once we see 
+        the first part of the lexeme, we check to see if there's a 
+        second part that we recognize. If there is, we know it's a 
+        compound lexeme.
+        """
+        if self.is_at_end():
+            return False
+        if self.source[self.current] is not expected:
+            return False
+        self.current += 1
+        return True
 
     # def peek(self):
     #     """Lookahead method"""
@@ -192,7 +199,6 @@ class Scanner:
     #     add_token(type, None)
 
     def add_token(self, type):
-        # text = self.source[self.start : self.current]
         text = self.source[self.start : self.current]
         self.tokens.append(token.Token(type, text, None, None))
 
