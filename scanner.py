@@ -87,21 +87,18 @@ class Scanner:
             self.add_token(tokentypes.TokenType.GREATER_EQUAL 
                            if self.match('=') 
                            else tokentypes.TokenType.GREATER)
-    #     elif c == '/':
-    #         if match('/'):
-    #             while peek() is not '\n' and not self.is_at_end:
-    #                 advance()
-    #         else:
-    #             self.add_token(SLASH)
-    #         break
-    #     elif c == ' ' or '\r' or '\t':
-    #         break
-    #     elif c == '\n':
-    #         line += 1
-    #         break
-    #     elif c == '"':
-    #         self.string()
-    #         break
+        elif c == '/':
+            if self.match('/'):
+                while self.peek() != '\n' and not self.is_at_end:
+                    self.advance()
+            else:
+                self.add_token(tokentypes.TokenType.SLASH)
+        # elif c == ' ' or '\r' or '\t':
+        #     pass
+        elif c == '\n':
+            self.line += 1
+        elif c == '"':
+            self.string()
     #     else:
     #         if self.is_digit(c):
     #             self.number()
@@ -135,22 +132,20 @@ class Scanner:
     #     # the goal is to use python to convert the lexeme to a real double
     #     self.add_token(NUMBER, Double.parseDouble(source.substring(start, current)))
 
-    # def string(self):
-    #     while self.peek() is not '"' and not self.is_at_end():
-    #         if self.peek() == '\n':
-    #             line += 1
-    #         self.advance()
+    def string(self):
+        while self.peek() != '"' and not self.is_at_end():
+            if self.peek() == '\n':
+                self.line += 1
+            self.advance()
 
-    #     if self.is_at_end():
-    #         Lox.error(self.line, "Undetermined string.");
-    #         return
+        if self.is_at_end():
+            lox.Lox.error(self.line, "Undetermined string.");
+            return
 
-    #     self.advance()
-    #     # TODO: probably handle substring with slice[:]
-    #     # All it's doing anyway is stripping of the opening
-    #     # and closing quotes
-    #     value = self.source.substring(self.start + 1, self.current - 1)
-    #     self.add_token(value)
+        self.advance()
+        # TODO: strip the quotes
+        value = self.source[self.start + 1 : self.current - 1]
+        self.add_token(tokentypes.TokenType.STRING, value)
 
     def match(self, expected):
         """This method is like a conditional advance(). Once we see 
@@ -165,11 +160,11 @@ class Scanner:
         self.current += 1
         return True
 
-    # def peek(self):
-    #     """Lookahead method"""
-    #     if self.is_at_end():
-    #         return '\0'
-    #     return self.source.charAt(self.current)
+    def peek(self):
+        """Lookahead method"""
+        if self.is_at_end():
+            return '\0'
+        return self.source[self.current]
 
     # def peek_next(self):
     #     if self.current + 1 >= len(self.source()):
@@ -198,10 +193,13 @@ class Scanner:
     # def add_token(self, type):
     #     add_token(type, None)
 
-    def add_token(self, type):
+    def add_token(self, type, literal=None):
         text = self.source[self.start : self.current]
-        self.tokens.append(token.Token(type, text, None, None))
+        self.tokens.append(token.Token(type, text, literal, None))
 
+    # def add_token(self, type, literal):
+    #     text = self.source[self.start : self.current]
+    #     self.tokens.append(token.Token(type, text, literal, None))
 
     # def add_token(self, type, literal):
     #     text = self.source.substring(self.start, self.current)
