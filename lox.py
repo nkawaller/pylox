@@ -67,7 +67,7 @@ class Lox:
 
     @classmethod
     def report(cls, line, where, message):
-        print(f"[line {line}] Error {where}:{message}")
+        print(f"[line {line}] Error {where} : {message}")
 
 
 if __name__ == "__main__":

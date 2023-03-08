@@ -99,14 +99,13 @@ class Scanner:
             self.line += 1
         elif c == '"':
             self.string()
-    #     else:
-    #         if self.is_digit(c):
-    #             self.number()
-    #         elif self.is_alpha(c):
-    #             self.identifier()
-    #         else:
-    #             Lox.error(self.line, "Unexpected character.")
-    #         break
+        else:
+            if self.is_digit(c):
+                self.number()
+            # elif self.is_alpha(c):
+            #     self.identifier()
+            else:
+                lox.Lox.error(self.line, "Unexpected character.")
 
     # def identifier(self):
     #     while self.is_alpha_numeric(peek()):
@@ -118,19 +117,17 @@ class Scanner:
     #         type = IDENTIFIER
     #     self.add_token(IDENTIFIER)
 
-    # def number(self):
-    #     while self.is_digit(self.peek()):
-    #         self.advance()
-    #     if self.peek() == '.' and self.is_digit(self.peek_next()):
-    #         self.advance()
+    def number(self):
+        while self.is_digit(self.peek()):
+            self.advance()
+        if self.peek() == '.' and self.is_digit(self.peek_next()):
+            self.advance()
 
-    #         while self.is_digit(self.peek()):
-    #             self.advance()
+            while self.is_digit(self.peek()):
+                self.advance()
 
-    #     # TODO: Need to sort this out
-    #     # should I just cast to a float?
-    #     # the goal is to use python to convert the lexeme to a real double
-    #     self.add_token(NUMBER, Double.parseDouble(source.substring(start, current)))
+        self.add_token(tokentypes.TokenType.NUMBER, 
+                       float(self.source[self.start : self.current]))
 
     def string(self):
         while self.peek() != '"' and not self.is_at_end():
@@ -143,7 +140,6 @@ class Scanner:
             return
 
         self.advance()
-        # TODO: strip the quotes
         value = self.source[self.start + 1 : self.current - 1]
         self.add_token(tokentypes.TokenType.STRING, value)
 
@@ -166,11 +162,10 @@ class Scanner:
             return '\0'
         return self.source[self.current]
 
-    # def peek_next(self):
-    #     if self.current + 1 >= len(self.source()):
-    #         return '\0'
-    #     # TODO: find the charAt equivalent  
-    #     return self.source.charAt(self.current + 1)
+    def peek_next(self):
+        if self.current + 1 >= len(self.source):
+            return '\0'
+        return self.source[self.current + 1]
 
     # def is_alpha(self, c):
     #     return c >= 'a' and c <= 'z' or c >= 'A' and c <= 'Z' or c == '_'
@@ -178,9 +173,8 @@ class Scanner:
     # def is_alpha_numeric(self, c):
     #     return self.is_alpha(c) or self.is_digit(c)
 
-    # def is_digit(self, c):
-    #     # Should these be integers instead of strings?
-    #     return c >= '0' and c <= '9'
+    def is_digit(self, c):
+        return c >= '0' and c <= '9'
 
     def is_at_end(self):
         return self.current >= len(self.source)
