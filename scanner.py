@@ -16,24 +16,24 @@ class Scanner:
         self.current = 0
         self.line = 1
 
-    # keywords = {
-    #     "and":    TokenType.AND,
-    #     "class":  TokenType.CLASS,
-    #     "else":   TokenType.ELSE,
-    #     "false":  TokenType.FALSE,
-    #     "for":    TokenType.FOR,
-    #     "fun":    TokenType.FUN,
-    #     "if":     TokenType.IF,
-    #     "nil":    TokenType.NIL,
-    #     "or":     TokenType.OR,
-    #     "print":  TokenType.PRINT,
-    #     "return": TokenType.RETURN,
-    #     "super":  TokenType.SUPER,
-    #     "this":   TokenType.THIS,
-    #     "true":   TokenType.TRUE,
-    #     "var":    TokenType.VAR,
-    #     "while":  TokenType.WHILE
-    # }
+    keywords = {
+        "and":    tokentypes.TokenType.AND,
+        "class":  tokentypes.TokenType.CLASS,
+        "else":   tokentypes.TokenType.ELSE,
+        "false":  tokentypes.TokenType.FALSE,
+        "for":    tokentypes.TokenType.FOR,
+        "fun":    tokentypes.TokenType.FUN,
+        "if":     tokentypes.TokenType.IF,
+        "nil":    tokentypes.TokenType.NIL,
+        "or":     tokentypes.TokenType.OR,
+        "print":  tokentypes.TokenType.PRINT,
+        "return": tokentypes.TokenType.RETURN,
+        "super":  tokentypes.TokenType.SUPER,
+        "this":   tokentypes.TokenType.THIS,
+        "true":   tokentypes.TokenType.TRUE,
+        "var":    tokentypes.TokenType.VAR,
+        "while":  tokentypes.TokenType.WHILE
+    }
 
     def scan_tokens(self):
         """Take in the source code as a single string. Append tokens
@@ -94,7 +94,7 @@ class Scanner:
             else:
                 self.add_token(tokentypes.TokenType.SLASH)
         # elif c == ' ' or '\r' or '\t':
-        #     pass
+        #     return
         elif c == '\n':
             self.line += 1
         elif c == '"':
@@ -102,20 +102,19 @@ class Scanner:
         else:
             if self.is_digit(c):
                 self.number()
-            # elif self.is_alpha(c):
-            #     self.identifier()
+            elif self.is_alpha(c):
+                self.identifier()
             else:
                 lox.Lox.error(self.line, "Unexpected character.")
 
-    # def identifier(self):
-    #     while self.is_alpha_numeric(peek()):
-    #         self.advance()
-    #     # TODO: replace substring
-    #     text = self.source.substring(self.start, self.current)
-    #     type = self.keywords.get(text, None)
-    #     if type is None:
-    #         type = IDENTIFIER
-    #     self.add_token(IDENTIFIER)
+    def identifier(self):
+        while self.is_alpha_numeric(self.peek()):
+            self.advance()
+        text = self.source[self.start : self.current]
+        type = self.keywords.get(text, None)
+        if type is None:
+            type = tokentypes.TokenType.IDENTIFIER
+        self.add_token(tokentypes.TokenType.IDENTIFIER)
 
     def number(self):
         while self.is_digit(self.peek()):
@@ -167,11 +166,11 @@ class Scanner:
             return '\0'
         return self.source[self.current + 1]
 
-    # def is_alpha(self, c):
-    #     return c >= 'a' and c <= 'z' or c >= 'A' and c <= 'Z' or c == '_'
+    def is_alpha(self, c):
+        return c >= 'a' and c <= 'z' or c >= 'A' and c <= 'Z' or c == '_'
     
-    # def is_alpha_numeric(self, c):
-    #     return self.is_alpha(c) or self.is_digit(c)
+    def is_alpha_numeric(self, c):
+        return self.is_alpha(c) or self.is_digit(c)
 
     def is_digit(self, c):
         return c >= '0' and c <= '9'
@@ -184,17 +183,6 @@ class Scanner:
         self.current += 1
         return curr
 
-    # def add_token(self, type):
-    #     add_token(type, None)
-
     def add_token(self, type, literal=None):
         text = self.source[self.start : self.current]
         self.tokens.append(token.Token(type, text, literal, None))
-
-    # def add_token(self, type, literal):
-    #     text = self.source[self.start : self.current]
-    #     self.tokens.append(token.Token(type, text, literal, None))
-
-    # def add_token(self, type, literal):
-    #     text = self.source.substring(self.start, self.current)
-    #     self.tokens.add(token.Token(type, text, literal, self.line))
