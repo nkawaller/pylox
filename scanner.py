@@ -39,6 +39,8 @@ class Scanner:
         """Take in the source code as a single string. Append tokens
         to the token list as we find them and return the list when 
         we're done.
+
+        :return: list of tokens
         """
 
         while not self.is_at_end():
@@ -143,10 +145,14 @@ class Scanner:
         self.add_token(tokentypes.TokenType.STRING, value)
 
     def match(self, expected):
-        """This method is like a conditional advance(). Once we see 
-        the first part of the lexeme, we check to see if there's a 
-        second part that we recognize. If there is, we know it's a 
-        compound lexeme.
+        """
+        This method is like a conditional advance(). Once we see the
+        first part of the lexeme, we check to see if there's a second
+        part that we recognize. If there is, we know it's a compound
+        lexeme.
+
+        :param expected:
+        :return: boolean
         """
         if self.is_at_end():
             return False
@@ -156,26 +162,58 @@ class Scanner:
         return True
 
     def peek(self):
-        """Lookahead method"""
+        """
+        Look ahead to next character
+
+        :return: the next character
+        """
         if self.is_at_end():
             return '\0'
         return self.source[self.current]
 
     def peek_next(self):
+        """
+        Look ahead two characters from current character
+
+        :return: two characters ahead
+        """
         if self.current + 1 >= len(self.source):
             return '\0'
         return self.source[self.current + 1]
 
     def is_alpha(self, c):
-        return c >= 'a' and c <= 'z' or c >= 'A' and c <= 'Z' or c == '_'
+        """
+        Return true if a character is a letter
+
+        :param c: current character
+        :return: boolean
+        """
+        return 'a' <= c <= 'z' or 'A' <= c <= 'Z' or c == '_'
     
     def is_alpha_numeric(self, c):
+        """
+        Return true if a character is a letter or number
+
+        :param c:
+        :return: boolean
+        """
         return self.is_alpha(c) or self.is_digit(c)
 
     def is_digit(self, c):
-        return c >= '0' and c <= '9'
+        """
+        Return true if a character is a number
+
+        :param c: current character
+        :return: boolean
+        """
+        return '0' <= c <= '9'
 
     def is_at_end(self):
+        """
+        Return true when we've consumed all characters
+
+        :return: boolean
+        """
         return self.current >= len(self.source)
 
     def advance(self):
