@@ -5,8 +5,8 @@ import tokentypes
 import token
 
 class Scanner:
-    """The scanner consumes source code, groups lexemes together and
-    outputs tokens
+    """ The scanner consumes source code, groups lexemes together with
+    their types and outputs tokens
     """
 
     def __init__(self, source):
@@ -36,7 +36,7 @@ class Scanner:
     }
 
     def scan_tokens(self):
-        """Take in the source code as a single string. Append tokens
+        """ Take in the source code as a single string. Append tokens
         to the token list as we find them and return the list when 
         we're done.
 
@@ -52,6 +52,10 @@ class Scanner:
         return self.tokens
 
     def scan_token(self):
+        """ Match the input character with its token type
+
+        :return: None
+        """
         c = self.advance()
         if c == '(':
             self.add_token(tokentypes.TokenType.LEFT_PAREN)
@@ -95,19 +99,22 @@ class Scanner:
                     self.advance()
             else:
                 self.add_token(tokentypes.TokenType.SLASH)
-        # elif c == ' ' or '\r' or '\t':
-        #     return
+        elif c == ' ':
+            pass
+        elif c == '\r':
+            pass
+        elif c == '\t':
+            pass
         elif c == '\n':
             self.line += 1
         elif c == '"':
             self.string()
+        elif self.is_digit(c):
+            self.number()
+        elif self.is_alpha(c):
+            self.identifier()
         else:
-            if self.is_digit(c):
-                self.number()
-            elif self.is_alpha(c):
-                self.identifier()
-            else:
-                lox.Lox.error(self.line, "Unexpected character.")
+            lox.Lox.error(self.line, f"Unexpected character: {c}")
 
     def identifier(self):
         while self.is_alpha_numeric(self.peek()):
@@ -145,11 +152,10 @@ class Scanner:
         self.add_token(tokentypes.TokenType.STRING, value)
 
     def match(self, expected):
-        """
-        This method is like a conditional advance(). Once we see the
-        first part of the lexeme, we check to see if there's a second
-        part that we recognize. If there is, we know it's a compound
-        lexeme.
+        """ This method is like a conditional advance(). Once we see
+        the first part of the lexeme, we check to see if there's a
+        second part that we recognize. If there is, we know it's a
+        compound lexeme.
 
         :param expected:
         :return: boolean
@@ -162,8 +168,7 @@ class Scanner:
         return True
 
     def peek(self):
-        """
-        Look ahead to next character
+        """ Look ahead to next character
 
         :return: the next character
         """
@@ -172,8 +177,7 @@ class Scanner:
         return self.source[self.current]
 
     def peek_next(self):
-        """
-        Look ahead two characters from current character
+        """ Look ahead two characters from current character
 
         :return: two characters ahead
         """
@@ -182,8 +186,7 @@ class Scanner:
         return self.source[self.current + 1]
 
     def is_alpha(self, c):
-        """
-        Return true if a character is a letter
+        """ Return true if a character is a letter
 
         :param c: current character
         :return: boolean
@@ -191,8 +194,7 @@ class Scanner:
         return 'a' <= c <= 'z' or 'A' <= c <= 'Z' or c == '_'
     
     def is_alpha_numeric(self, c):
-        """
-        Return true if a character is a letter or number
+        """ Return true if a character is a letter or number
 
         :param c:
         :return: boolean
@@ -200,8 +202,7 @@ class Scanner:
         return self.is_alpha(c) or self.is_digit(c)
 
     def is_digit(self, c):
-        """
-        Return true if a character is a number
+        """ Return true if a character is a number
 
         :param c: current character
         :return: boolean
@@ -209,18 +210,28 @@ class Scanner:
         return '0' <= c <= '9'
 
     def is_at_end(self):
-        """
-        Return true when we've consumed all characters
+        """ Return true when we've consumed all characters
 
         :return: boolean
         """
         return self.current >= len(self.source)
 
     def advance(self):
+        """Consume the next character and return it
+
+        :return: The next character in the input string
+        """
         curr = self.source[self.current]
         self.current += 1
         return curr
 
     def add_token(self, type, literal=None):
+        """ Once a character is matched, create a token and add to
+        the token list
+
+        :param type: identifies the lexeme type
+        :param literal: TODO
+        :return: None
+        """
         text = self.source[self.start : self.current]
         self.tokens.append(token.Token(type, text, literal, None))
