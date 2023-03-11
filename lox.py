@@ -3,11 +3,10 @@
 Use this class to run Lox programs via script or 
 interactive prompt.
 
-Usage:
-    script:
-        python3 Lox.py [script]
-    prompt:
-        python3 Lox.py
+Usage
+-----
+script : python3 Lox.py <filename>
+prompt : python3 Lox.py
 """
 import sys
 import scanner
