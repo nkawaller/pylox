@@ -1,8 +1,8 @@
 """Scanner class"""
 
 import lox
-import tokentypes
 import token
+import tokentypes
 
 class Scanner:
     """The scanner consumes source code, groups lexemes together with
@@ -157,7 +157,7 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
-            lox.Lox.error(self.line, "Undetermined string.");
+            lox.Lox.error(self.line, "Undetermined string.")
             return
 
         self.advance()
