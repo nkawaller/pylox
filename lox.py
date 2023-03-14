@@ -1,6 +1,6 @@
 """Entry point for the Lox language.
 
-Use this class to run Lox programs via script or 
+Use this class to run Lox programs via script or
 interactive prompt.
 
 Usage
@@ -13,11 +13,17 @@ import scanner
 
 
 class Lox:
+    """Class used to run Lox
+    """
     args = sys.argv[1:]
     had_error = False
 
     @classmethod
     def main(cls):
+        """Determine how user wants to run Lox
+
+        :return: None
+        """
         if len(cls.args) > 1:
             print("Usage: python3 Lox.py [script]")
             sys.exit(1)
@@ -28,6 +34,12 @@ class Lox:
 
     @classmethod
     def run_file(cls, path):
+        """If user enters file name at the command line, open that
+        file and read its contents
+
+        :param path: location of file
+        :return: None
+        """
         try:
             with open(path, "r") as reader:
                 all_bytes = reader.read()
@@ -39,6 +51,10 @@ class Lox:
 
     @classmethod
     def run_prompt(cls):
+        """Open repl so user can run Lox interactively
+
+        :return: None
+        """
         try:
             while True:
                 line = input("> ")
@@ -54,6 +70,11 @@ class Lox:
 
     @classmethod
     def run(cls, source):
+        """Run the input through the scanner and print the tokens
+
+        :param source: input from either file or interactive prompt
+        :return: None
+        """
         s = scanner.Scanner(source)
         tokens = s.scan_tokens()
         # print(tokens)
