@@ -41,7 +41,7 @@ class Lox:
         :return: None
         """
         try:
-            with open(path, "r") as reader:
+            with open(path, "r", encoding='utf-8') as reader:
                 all_bytes = reader.read()
                 cls.run(all_bytes)
                 if cls.had_error:  # May need to adjust this

@@ -125,9 +125,9 @@ class Scanner:
         while self.is_alpha_numeric(self.peek()):
             self.advance()
         text = self.source[self.start : self.current]
-        type = self.keywords.get(text, None)
-        if type is None:
-            type = tokentypes.TokenType.IDENTIFIER
+        tokentype = self.keywords.get(text, None)
+        if tokentype is None:
+            tokentype = tokentypes.TokenType.IDENTIFIER
         self.add_token(tokentypes.TokenType.IDENTIFIER)
 
     def number(self):
@@ -238,7 +238,7 @@ class Scanner:
         self.current += 1
         return curr
 
-    def add_token(self, type, literal=None):
+    def add_token(self, tokentype, literal=None):
         """Once a character is matched, create a token and add to
         the token list
 
@@ -247,4 +247,5 @@ class Scanner:
         :return: None
         """
         text = self.source[self.start : self.current]
-        self.tokens.append(token.Token(type, text, literal, None))
+        self.tokens.append(token.Token(tokentype, text, literal,
+                                       None))
