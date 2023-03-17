@@ -5,8 +5,8 @@ interactive prompt.
 
 Usage
 -----
-script : python3 Lox.py <filename>
-prompt : python3 Lox.py
+script : python3 lox.py <filename>
+prompt : python3 lox.py
 """
 import sys
 import scanner
