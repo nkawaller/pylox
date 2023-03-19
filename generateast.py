@@ -12,6 +12,8 @@ def write_file():
             "\n",
             "\n",
             "class Expr(ABC):\n",
+            "\t\"\"\"Expression base class\"\"\""
+            "\n",
             "\n",
             "\tdef __init__(self, left, operator, right):\n",
             "\t\tself.left = left\n",

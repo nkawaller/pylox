@@ -3,6 +3,7 @@
 from abc import ABC
 
 class Expr(ABC):
+	"""Expression base class"""
 
 	def __init__(self, left, operator, right):
 		self.left = left
