@@ -16,6 +16,39 @@ class Scanner:
         self.current = 0
         self.line = 1
 
+
+    character_map = {
+        '(': tokentypes.TokenType.LEFT_PAREN,
+        ')': tokentypes.TokenType.RIGHT_PAREN,
+        '{': tokentypes.TokenType.LEFT_BRACE,
+        '}': tokentypes.TokenType.RIGHT_BRACE,
+        ',': tokentypes.TokenType.COMMA,
+        '.': tokentypes.TokenType.DOT,
+        '-': tokentypes.TokenType.MINUS,
+        '+': tokentypes.TokenType.PLUS,
+        ';': tokentypes.TokenType.SEMICOLON,
+        '*': tokentypes.TokenType.STAR,
+        '!': lambda self: self.add_token(
+            tokentypes.TokenType.BANG_EQUAL if self.match('=')
+            else tokentypes.TokenType.BANG),
+        '=': lambda self: self.add_token(
+            tokentypes.TokenType.EQUAL_EQUAL if self.match('=')
+            else tokentypes.TokenType.EQUAL),
+        '<': lambda self: self.add_token(
+            tokentypes.TokenType.LESS_EQUAL if self.match('=')
+            else tokentypes.TokenType.LESS),
+        '>': lambda self: self.add_token(
+            tokentypes.TokenType.GREATER_EQUAL if self.match('=')
+            else tokentypes.TokenType.GREATER),
+        '/': lambda self: self.process_slash(),
+        ' ': lambda self: None,
+        '\r': lambda self: None,
+        '\t': lambda self: None,
+        '\n': lambda self: setattr(self, 'line', self.line + 1),
+        '"': lambda self: self.string()
+    }
+
+
     keywords = {
         "and":    tokentypes.TokenType.AND,
         "class":  tokentypes.TokenType.CLASS,
@@ -57,56 +90,11 @@ class Scanner:
         :return: None
         """
         c = self.advance()
-        if c == '(':
-            self.add_token(tokentypes.TokenType.LEFT_PAREN)
-        elif c == ')':
-            self.add_token(tokentypes.TokenType.RIGHT_PAREN)
-        elif c == '{':
-            self.add_token(tokentypes.TokenType.LEFT_BRACE)
-        elif c == '}':
-            self.add_token(tokentypes.TokenType.RIGHT_BRACE)
-        elif c == ',':
-            self.add_token(tokentypes.TokenType.COMMA)
-        elif c == '.':
-            self.add_token(tokentypes.TokenType.DOT)
-        elif c == '-':
-            self.add_token(tokentypes.TokenType.MINUS)
-        elif c == '+':
-            self.add_token(tokentypes.TokenType.PLUS)
-        elif c == ';':
-            self.add_token(tokentypes.TokenType.SEMICOLON)
-        elif c == '*':
-            self.add_token(tokentypes.TokenType.STAR)
-        elif c == '!':
-            self.add_token(tokentypes.TokenType.BANG_EQUAL 
-                           if self.match('=') 
-                           else tokentypes.TokenType.BANG)
-        elif c == '=':
-            self.add_token(tokentypes.TokenType.EQUAL_EQUAL 
-                           if self.match('=') 
-                           else tokentypes.TokenType.EQUAL)
-        elif c == '<':
-            self.add_token(tokentypes.TokenType.LESS_EQUAL 
-                           if self.match('=') 
-                           else tokentypes.TokenType.LESS)
-        elif c == '>':
-            self.add_token(tokentypes.TokenType.GREATER_EQUAL 
-                           if self.match('=') 
-                           else tokentypes.TokenType.GREATER)
-        elif c == '/':
-            if self.match('/'):
-                while self.peek() != '\n' and not self.is_at_end:
-                    self.advance()
+        if c in self.character_map:
+            if callable(self.character_map.get(c)):
+                self.character_map[c](self)
             else:
-                self.add_token(tokentypes.TokenType.SLASH)
-        elif c == ' ':
-            pass
-        elif c == '\r':
-            pass
-        elif c == '\t':
-            pass
-        elif c == '\n':
-            self.line += 1
+                self.add_token(self.character_map.get(c), "None")
         elif c == '"':
             self.string()
         elif self.is_digit(c):
@@ -197,6 +185,18 @@ class Scanner:
         if self.current + 1 >= len(self.source):
             return '\0'
         return self.source[self.current + 1]
+
+    def process_slash(self):
+        """Determine if we're dealing with the divide-by symbol
+        or a comment
+
+        :return: None
+        """
+        if self.match('/'):
+            while self.peek() != '\n' and not self.is_at_end:
+                self.advance()
+        else:
+            self.add_token(tokentypes.TokenType.SLASH)
 
     def is_alpha(self, c):
         """Return true if a character is a letter
