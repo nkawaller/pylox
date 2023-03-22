@@ -3,15 +3,26 @@
 import sys
 
 
-def define_type(lines, basename, classname, fields):
-    """Write each expression class"""
+# def define_type(lines, basename, classname, fields):
+#     """Write each expression class (nested classes)"""
+#
+#     lines.append(f"\tclass {classname}({basename}):\n\n"
+#                  f"\t\tdef __init__(self, {fields}):\n")
+#     fields = fields.split(", ")
+#     for field in fields:
+#         name = field.split(" ")[0]
+#         lines.append(f"\t\t\tself.{name} = {name}\n")
+#     lines.append("\n")
 
-    lines.append(f"\tclass {classname}({basename}):\n\n"
-                 f"\t\tdef __init__(self, {fields}):\n")
+def define_type(lines, basename, classname, fields):
+    """Write each expression class (flat class structure)"""
+
+    lines.append(f"class {classname}({basename}):\n\n"
+                 f"\tdef __init__(self, {fields}):\n")
     fields = fields.split(", ")
     for field in fields:
         name = field.split(" ")[0]
-        lines.append(f"\t\t\tself.{name} = {name}\n")
+        lines.append(f"\t\tself.{name} = {name}\n")
     lines.append("\n")
 
 
@@ -28,6 +39,8 @@ def define_ast(output_dir, basename, types):
             "\n",
             "\n",
             f"class {basename}(ABC):\n",
+            "\tpass"
+            "\n",
             "\n"
         ]
         for expr_type in types:
