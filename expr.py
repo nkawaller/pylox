@@ -1,9 +1,15 @@
 """Syntax tree that represents the Lox grammar"""
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 class Expr(ABC):
 	pass
+
+class Visitor(ABC):
+
+	@abstractmethod
+	def visit():
+		pass
 
 class Binary(Expr):
 

@@ -25,6 +25,13 @@ def define_type(lines, basename, classname, fields):
         lines.append(f"\t\tself.{name} = {name}\n")
     lines.append("\n")
 
+def define_visitor(lines, basename, types):
+    """Create abstract base class for visitor"""
+    lines.append(f"class Visitor(ABC):\n\n"
+                  "\t@abstractmethod\n"
+                  "\tdef visit():\n"
+                  "\t\tpass\n\n")
+
 
 def define_ast(output_dir, basename, types):
     """Generate code for syntax tree"""
@@ -35,7 +42,7 @@ def define_ast(output_dir, basename, types):
             "\"\"\"Syntax tree that represents the Lox grammar\"\"\"",
             "\n",
             "\n",
-            "from abc import ABC",
+            "from abc import ABC, abstractmethod",
             "\n",
             "\n",
             f"class {basename}(ABC):\n",
@@ -43,6 +50,7 @@ def define_ast(output_dir, basename, types):
             "\n",
             "\n"
         ]
+        define_visitor(lines, basename, types)
         for expr_type in types:
             classname = expr_type.split(":")[0].strip()
             fields = expr_type.split(":")[1].strip()
