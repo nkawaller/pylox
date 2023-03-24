@@ -8,7 +8,19 @@ class Expr(ABC):
 class Visitor(ABC):
 
 	@abstractmethod
-	def visit():
+	def visitBinaryExpr(expr):
+		pass
+
+	@abstractmethod
+	def visitGroupingExpr(expr):
+		pass
+
+	@abstractmethod
+	def visitLiteralExpr(expr):
+		pass
+
+	@abstractmethod
+	def visitUnaryExpr(expr):
 		pass
 
 class Binary(Expr):

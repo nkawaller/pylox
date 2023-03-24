@@ -27,10 +27,12 @@ def define_type(lines, basename, classname, fields):
 
 def define_visitor(lines, basename, types):
     """Create abstract base class for visitor"""
-    lines.append(f"class Visitor(ABC):\n\n"
-                  "\t@abstractmethod\n"
-                  "\tdef visit():\n"
-                  "\t\tpass\n\n")
+    lines.append(f"class Visitor(ABC):\n\n")
+    for type in types:
+        typename = type.split(":")[0].strip()
+        lines.append("\t@abstractmethod\n"
+                    f"\tdef visit{typename}{basename}({basename.lower()}):\n"
+                     "\t\tpass\n\n")
 
 
 def define_ast(output_dir, basename, types):
