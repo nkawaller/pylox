@@ -2,18 +2,6 @@
 
 import sys
 
-
-# def define_type(lines, basename, classname, fields):
-#     """Write each expression class (nested classes)"""
-#
-#     lines.append(f"\tclass {classname}({basename}):\n\n"
-#                  f"\t\tdef __init__(self, {fields}):\n")
-#     fields = fields.split(", ")
-#     for field in fields:
-#         name = field.split(" ")[0]
-#         lines.append(f"\t\t\tself.{name} = {name}\n")
-#     lines.append("\n")
-
 def define_type(lines, basename, classname, fields):
     """Write each expression class (flat class structure)"""
 
@@ -24,6 +12,10 @@ def define_type(lines, basename, classname, fields):
         name = field.split(" ")[0]
         lines.append(f"\t\tself.{name} = {name}\n")
     lines.append("\n")
+    lines.append("\tdef accept(self, visitor):\n"
+                 f"\t\treturn visitor.visit{classname}{basename}(self)"
+                 "\n"
+                 "\n")
 
 def define_visitor(lines, basename, types):
     """Create abstract base class for visitor"""
@@ -48,7 +40,10 @@ def define_ast(output_dir, basename, types):
             "\n",
             "\n",
             f"class {basename}(ABC):\n",
-            "\tpass"
+            "\n",
+            "\t@abstractmethod\n",
+            "\tdef accept(visitor):\n",
+            "\t\tpass"
             "\n",
             "\n"
         ]
