@@ -19,11 +19,11 @@ def define_type(lines, basename, classname, fields):
 
 def define_visitor(lines, basename, types):
     """Create abstract base class for visitor"""
-    lines.append(f"class Visitor(ABC):\n\n")
-    for type in types:
-        typename = type.split(":")[0].strip()
+    lines.append("class Visitor(ABC):\n\n")
+    for expr_type in types:
+        typename = expr_type.split(":")[0].strip()
         lines.append("\t@abstractmethod\n"
-                    f"\tdef visit{typename}{basename}({basename.lower()}):\n"
+                    f"\tdef visit{typename}{basename}(self, {basename.lower()}):\n"
                      "\t\tpass\n\n")
 
 
@@ -42,7 +42,7 @@ def define_ast(output_dir, basename, types):
             f"class {basename}(ABC):\n",
             "\n",
             "\t@abstractmethod\n",
-            "\tdef accept(visitor):\n",
+            "\tdef accept(self, visitor):\n",
             "\t\tpass"
             "\n",
             "\n"

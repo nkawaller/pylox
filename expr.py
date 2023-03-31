@@ -5,25 +5,25 @@ from abc import ABC, abstractmethod
 class Expr(ABC):
 
 	@abstractmethod
-	def accept(visitor):
+	def accept(self, visitor):
 		pass
 
 class Visitor(ABC):
 
 	@abstractmethod
-	def visitBinaryExpr(expr):
+	def visitBinaryExpr(self, expr):
 		pass
 
 	@abstractmethod
-	def visitGroupingExpr(expr):
+	def visitGroupingExpr(self, expr):
 		pass
 
 	@abstractmethod
-	def visitLiteralExpr(expr):
+	def visitLiteralExpr(self, expr):
 		pass
 
 	@abstractmethod
-	def visitUnaryExpr(expr):
+	def visitUnaryExpr(self, expr):
 		pass
 
 class Binary(Expr):
