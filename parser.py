@@ -12,16 +12,58 @@ class Parser:
         self.current = 0
 
     def expression(self):
+        """The top rule of our top-down parser"""
+
         return self.equality()
 
     def equality(self):
+        """Determine if we're looking at an equality expression"""
+
         expr = self.comparison()
 
         while self.match(
-                    tokentypes.TokenType.BANG_EQUAL, 
+                    tokentypes.TokenType.BANG_EQUAL,
                     tokentypes.TokenType.EQUAL_EQUAL):
             operator = self.previous()
             right = self.comparison()
+            expr = expr.Binary(expr, operator, right)
+        return expr
+
+    def comparison(self):
+        """Determine if we're looking at a comparison expression"""
+
+        expr = self.term()
+        while self.match(
+                    tokentypes.TokenType.GREATER,
+                    tokentypes.TokenType.GREATER_EQUAL,
+                    tokentypes.TokenType.LESS,
+                    tokentypes.TokenType.LESS_EQUAL):
+            operator = self.previous()
+            right = self.term()
+            expr = expr.Binary(expr, operator, right)
+        return expr
+
+    def term(self):
+        """Determine if we're looking at addition or subtraction"""
+
+        expr = self.factor()
+        while self.match(
+                    tokentypes.TokenType.MINUS,
+                    tokentypes.TokenType.PLUS):
+            operator = self.previous()
+            right = self.factor()
+            expr = expr.Binary(expr, operator, right)
+        return expr
+
+    def factor(self):
+        """Determine if we're looking at multiplication or division"""
+
+        expr = self.unary()
+        while self.match(
+                    tokentypes.TokenType.SLASH,
+                    tokentypes.TokenType.STAR):
+            operator = self.previous()
+            right = self.unary()
             expr = expr.Binary(expr, operator, right)
         return expr
 
