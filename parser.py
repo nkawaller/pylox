@@ -21,9 +21,8 @@ class Parser:
 
         expr = self.comparison()
 
-        while self.match(
-                    tokentypes.TokenType.BANG_EQUAL,
-                    tokentypes.TokenType.EQUAL_EQUAL):
+        while self.match([tokentypes.TokenType.BANG_EQUAL,
+                          tokentypes.TokenType.EQUAL_EQUAL]):
             operator = self.previous()
             right = self.comparison()
             expr = expr.Binary(expr, operator, right)
@@ -33,11 +32,10 @@ class Parser:
         """Determine if we're looking at a comparison expression"""
 
         expr = self.term()
-        while self.match(
-                    tokentypes.TokenType.GREATER,
-                    tokentypes.TokenType.GREATER_EQUAL,
-                    tokentypes.TokenType.LESS,
-                    tokentypes.TokenType.LESS_EQUAL):
+        while self.match([tokentypes.TokenType.GREATER,
+                          tokentypes.TokenType.GREATER_EQUAL,
+                          tokentypes.TokenType.LESS,
+                          tokentypes.TokenType.LESS_EQUAL]):
             operator = self.previous()
             right = self.term()
             expr = expr.Binary(expr, operator, right)
@@ -47,9 +45,8 @@ class Parser:
         """Determine if we're looking at addition or subtraction"""
 
         expr = self.factor()
-        while self.match(
-                    tokentypes.TokenType.MINUS,
-                    tokentypes.TokenType.PLUS):
+        while self.match([tokentypes.TokenType.MINUS,
+                          tokentypes.TokenType.PLUS]):
             operator = self.previous()
             right = self.factor()
             expr = expr.Binary(expr, operator, right)
@@ -59,16 +56,53 @@ class Parser:
         """Determine if we're looking at multiplication or division"""
 
         expr = self.unary()
-        while self.match(
-                    tokentypes.TokenType.SLASH,
-                    tokentypes.TokenType.STAR):
+        while self.match([tokentypes.TokenType.SLASH,
+                          tokentypes.TokenType.STAR]):
             operator = self.previous()
             right = self.unary()
             expr = expr.Binary(expr, operator, right)
         return expr
 
+    def unary(self):
+        """Look at current token to see if its a unary expression 
+        (! or -)
+        """
+
+        if self.match([tokentypes.TokenType.BANG,
+                       tokentypes.TokenType.MINUS]):
+            operator = self.previous()
+            right = self.unary()
+            return expr.Unary(operator, right)
+
+        return self.primary()
+
+    def primary(self):
+        """If we haven't matched any of the other rules, then we're
+        working with primary expressions (the highest precedence 
+        level
+        """
+
+        if self.match([tokentypes.TokenType.FALSE]):
+            return expr.Literal(False)
+        if self.match([tokentypes.TokenType.TRUE]):
+            return expr.Literal(True)
+        if self.match([tokentypes.TokenType.NIL]):
+            return expr.Literal(None)
+        if self.match([tokentypes.TokenType.NUMBER,
+                       tokentypes.TokenType.STRING]):
+            return expr.Literal(self.previous().literal)
+        if self.match([tokentypes.TokenType.LEFT_PAREN]):
+            expr = self.expression()
+            self.consume(tokentypes.TokenType.RIGHT_PAREN,
+                         "Expect ')' after expression.")
+            return expr.Grouping(expr)
+
     def match(self, types):
-        """Check current token and consume it if theres a match"""
+        """Check current token and consume it if theres a match
+
+        :param types: array of tokens
+        :return: boolean
+        """
 
         for type in types:
             if self.check(type):
