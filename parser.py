@@ -110,6 +110,12 @@ class Parser:
                 return True
         return False
 
+    def consume(self, type, message):
+        if self.check(type):
+            self.advance()
+        else:
+            self.error(self.peek(), message)
+
     def check(self, type):
         """Look at the current token to see if it matches, but don't 
         consume it
