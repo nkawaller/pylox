@@ -1,8 +1,11 @@
 """Parser Class"""
 
 import expr
+import lox
 import tokentypes
 
+class ParseError(Exception):
+    pass
 
 class Parser:
     """Recursive descent parser"""
@@ -111,6 +114,10 @@ class Parser:
         return False
 
     def consume(self, type, message):
+        """Look for the closing paren and report error if some 
+        other token is found
+        """
+
         if self.check(type):
             self.advance()
         else:
@@ -146,3 +153,7 @@ class Parser:
         """Returnt previous token"""
 
         return self.tokens[self.current - 1]
+
+    def error(self, token, message):
+        lox.Lox.error(token, message)
+        return ParseError()

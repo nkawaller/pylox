@@ -10,6 +10,7 @@ prompt : python3 lox.py
 """
 import sys
 import scanner
+import tokentypes
 
 
 class Lox:
@@ -88,6 +89,14 @@ class Lox:
     @classmethod
     def report(cls, line, where, message):
         print(f"[line {line}] Error {where} : {message}")
+
+    # probably need to rename this, can't overload
+    @classmethod
+    def error(cls, token, message):
+        if token.tokentype == tokentypes.TokenType.EOF:
+            cls.report(token.line, "at end", message)
+        else:
+            cls.report(token.line, f" at '{token.lexeme}'", message)
 
 
 if __name__ == "__main__":
