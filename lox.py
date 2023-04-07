@@ -9,6 +9,7 @@ script : python3 lox.py <filename>
 prompt : python3 lox.py
 """
 import sys
+import parser
 import scanner
 import tokentypes
 
@@ -77,10 +78,15 @@ class Lox:
         :return: None
         """
         s = scanner.Scanner(source)
-        tokens = s.scan_tokens()
         # print(tokens)
-        for token in tokens:
-            print(str(token))
+        # for token in tokens:
+        #     print(str(token))
+        tokens = s.scan_tokens()
+        p = parser.Parser(tokens)
+        expression = p.parse()
+        if cls.had_error:
+            return;
+        print(expression)
 
     @classmethod
     def error(cls, line, message):
