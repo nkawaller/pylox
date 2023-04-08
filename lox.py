@@ -78,15 +78,16 @@ class Lox:
         :return: None
         """
         s = scanner.Scanner(source)
-        # print(tokens)
+        tokens = s.scan_tokens()
+        # print('------------------------------')
         # for token in tokens:
         #     print(str(token))
-        tokens = s.scan_tokens()
+        # print('------------------------------')
         p = parser.Parser(tokens)
         expression = p.parse()
         if cls.had_error:
             return;
-        print(expression)
+        print(f">>>> {expression} <<<<")
 
     @classmethod
     def error(cls, line, message):
@@ -96,9 +97,8 @@ class Lox:
     def report(cls, line, where, message):
         print(f"[line {line}] Error {where} : {message}")
 
-    # probably need to rename this, can't overload
     @classmethod
-    def error(cls, token, message):
+    def parse_error(cls, token, message):
         if token.tokentype == tokentypes.TokenType.EOF:
             cls.report(token.line, "at end", message)
         else:

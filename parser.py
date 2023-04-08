@@ -30,49 +30,49 @@ class Parser:
     def equality(self):
         """Determine if we're looking at an equality expression"""
 
-        expr = self.comparison()
+        e = self.comparison()
 
         while self.match([tokentypes.TokenType.BANG_EQUAL,
                           tokentypes.TokenType.EQUAL_EQUAL]):
             operator = self.previous()
             right = self.comparison()
-            expr = expr.Binary(expr, operator, right)
-        return expr
+            e = expr.Binary(expr, operator, right)
+        return e
 
     def comparison(self):
         """Determine if we're looking at a comparison expression"""
 
-        expr = self.term()
+        e = self.term()
         while self.match([tokentypes.TokenType.GREATER,
                           tokentypes.TokenType.GREATER_EQUAL,
                           tokentypes.TokenType.LESS,
                           tokentypes.TokenType.LESS_EQUAL]):
             operator = self.previous()
             right = self.term()
-            expr = expr.Binary(expr, operator, right)
-        return expr
+            e = expr.Binary(expr, operator, right)
+        return e
 
     def term(self):
         """Determine if we're looking at addition or subtraction"""
 
-        expr = self.factor()
+        e = self.factor()
         while self.match([tokentypes.TokenType.MINUS,
                           tokentypes.TokenType.PLUS]):
             operator = self.previous()
             right = self.factor()
-            expr = expr.Binary(expr, operator, right)
-        return expr
+            e = expr.Binary(expr, operator, right)
+        return e
 
     def factor(self):
         """Determine if we're looking at multiplication or division"""
 
-        expr = self.unary()
+        e = self.unary()
         while self.match([tokentypes.TokenType.SLASH,
                           tokentypes.TokenType.STAR]):
             operator = self.previous()
             right = self.unary()
-            expr = expr.Binary(expr, operator, right)
-        return expr
+            e = expr.Binary(expr, operator, right)
+        return e
 
     def unary(self):
         """Look at current token to see if its a unary expression 
@@ -103,10 +103,10 @@ class Parser:
                        tokentypes.TokenType.STRING]):
             return expr.Literal(self.previous().literal)
         if self.match([tokentypes.TokenType.LEFT_PAREN]):
-            expr = self.expression()
+            e = self.expression()
             self.consume(tokentypes.TokenType.RIGHT_PAREN,
                          "Expect ')' after expression.")
-            return expr.Grouping(expr)
+            return expr.Grouping(e)
         raise self.error(self.peek(), "Expect expression.")
 
     def match(self, types):
@@ -166,7 +166,7 @@ class Parser:
     def error(self, token, message):
         """Report error if we see an unexpected token"""
 
-        lox.Lox.error(token, message)
+        lox.Lox.parse_error(token, message)
         return ParseError()
 
     def synchronize(self):
