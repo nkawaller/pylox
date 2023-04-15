@@ -22,11 +22,16 @@ class Interpreter(expr.Visitor):
 
         unary_map = {
             "BANG": lambda right: not self.is_truthy(right),
+            # checkOperand Here
             "MINUS": lambda right: -float(right)
         }
 
         return unary_map.get(e.operator.tokentype, None)(right)
 
+    def check_number_operand(operator, operand):
+        if isinstance(operand, float): return
+        raise RuntimeException(operator, "Operand must be a number")
+        
     def is_truthy(self, object):
         """Evaluate an object's truthiness. False and Nil are false,
         everything else is true
