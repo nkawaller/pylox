@@ -3,5 +3,5 @@
 class RuntimeException(RuntimeError):
 
     def __init__(self, token, message):
-        #TODO: add super(message)
+        super().__init__(message)
         self.token = token
