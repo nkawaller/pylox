@@ -23,7 +23,7 @@ def define_visitor(lines, basename, types):
     for expr_type in types:
         typename = expr_type.split(":")[0].strip()
         lines.append("\t@abstractmethod\n"
-                    f"\tdef visit{typename}{basename}(self, {basename.lower()}):\n"
+                    f"\tdef visit_{typename.lower()}_{basename.lower()}(self, {basename.lower()}):\n"
                      "\t\tpass\n\n")
 
 

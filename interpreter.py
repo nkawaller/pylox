@@ -1,11 +1,17 @@
 """Interpreter class"""
 
-from typing_extensions import runtime
 import expr
 import runtimeexception
 
 class Interpreter(expr.Visitor):
     """Using the visitor pattern, execute the syntax tree itself"""
+
+    def interpret(self, expression):
+        try:
+            value = self.evaluate(expression)
+            print(self.stringify(value))
+        except RuntimeError as e:
+            runtimeexception.RuntimeException(e)
     
     def visit_literal_expr(e):
         """Evaluate literal expressions"""
@@ -56,6 +62,18 @@ class Interpreter(expr.Visitor):
         if a is None:
             return False
         return a == b
+
+    def stringify(self, object):
+        """Convert object to a string and display to user"""
+
+        if object is None: return "nil"
+        if isinstance(object, float):
+            text = str(object)
+            # TODO: do I need this? is it java specific?
+            if text.endswith(".0"):
+                text = text[0:len(text) - 2]
+            return text
+        return str(object)
 
     def evaluate(self, e):
         """Send the expression back into the interpreter's visitor

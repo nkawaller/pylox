@@ -12,13 +12,16 @@ import sys
 import parser
 import scanner
 import tokentypes
+import interpreter
 
 
 class Lox:
     """Class used to run Lox
     """
     args = sys.argv[1:]
+    interpreter = interpreter.Interpreter()
     had_error = False
+    had_runtime_error = False
 
     @classmethod
     def main(cls):
@@ -47,6 +50,8 @@ class Lox:
                 all_bytes = reader.read()
                 cls.run(all_bytes)
                 if cls.had_error:  # May need to adjust this
+                    sys.exit(1)
+                if cls.had_runtime_error:
                     sys.exit(1)
         except FileNotFoundError:
             print("Sorry, we could't find that file")
@@ -87,7 +92,7 @@ class Lox:
         expression = p.parse()
         if cls.had_error:
             return;
-        print(f">>>> {expression} <<<<")
+        cls.interpreter.interpret(expression)
 
     @classmethod
     def error(cls, line, message):
@@ -103,6 +108,11 @@ class Lox:
             cls.report(token.line, "at end", message)
         else:
             cls.report(token.line, f" at '{token.lexeme}'", message)
+
+    @classmethod
+    def runtime_error(cls, error):
+        print(f"{error.args} \n[line {error.token.line}]")
+        cls.had_runtime_error = True
 
 
 if __name__ == "__main__":

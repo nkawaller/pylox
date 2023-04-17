@@ -11,19 +11,19 @@ class Expr(ABC):
 class Visitor(ABC):
 
 	@abstractmethod
-	def visitBinaryExpr(self, expr):
+	def visit_binary_expr(self, expr):
 		pass
 
 	@abstractmethod
-	def visitGroupingExpr(self, expr):
+	def visit_grouping_expr(self, expr):
 		pass
 
 	@abstractmethod
-	def visitLiteralExpr(self, expr):
+	def visit_literal_expr(self, expr):
 		pass
 
 	@abstractmethod
-	def visitUnaryExpr(self, expr):
+	def visit_unary_expr(self, expr):
 		pass
 
 class Binary(Expr):
