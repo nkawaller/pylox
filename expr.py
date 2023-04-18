@@ -34,7 +34,7 @@ class Binary(Expr):
 		self.right = right
 
 	def accept(self, visitor):
-		return visitor.visitBinaryExpr(self)
+		return visitor.visit_binary_expr(self)
 
 class Grouping(Expr):
 
@@ -42,7 +42,7 @@ class Grouping(Expr):
 		self.expression = expression
 
 	def accept(self, visitor):
-		return visitor.visitGroupingExpr(self)
+		return visitor.visit_grouping_expr(self)
 
 class Literal(Expr):
 
@@ -50,7 +50,7 @@ class Literal(Expr):
 		self.value = value
 
 	def accept(self, visitor):
-		return visitor.visitLiteralExpr(self)
+		return visitor.visit_literal_expr(self)
 
 class Unary(Expr):
 
@@ -59,5 +59,5 @@ class Unary(Expr):
 		self.right = right
 
 	def accept(self, visitor):
-		return visitor.visitUnaryExpr(self)
+		return visitor.visit_unary_expr(self)
 

@@ -18,7 +18,7 @@ class Parser:
         """Initial method to kick off the parser"""
 
         try:
-            self.expression()
+            return self.expression()
         except ParseError:
             return None
 
@@ -36,7 +36,7 @@ class Parser:
                           tokentypes.TokenType.EQUAL_EQUAL]):
             operator = self.previous()
             right = self.comparison()
-            e = expr.Binary(expr, operator, right)
+            e = expr.Binary(e, operator, right)
         return e
 
     def comparison(self):
@@ -49,7 +49,7 @@ class Parser:
                           tokentypes.TokenType.LESS_EQUAL]):
             operator = self.previous()
             right = self.term()
-            e = expr.Binary(expr, operator, right)
+            e = expr.Binary(e, operator, right)
         return e
 
     def term(self):
@@ -60,7 +60,7 @@ class Parser:
                           tokentypes.TokenType.PLUS]):
             operator = self.previous()
             right = self.factor()
-            e = expr.Binary(expr, operator, right)
+            e = expr.Binary(e, operator, right)
         return e
 
     def factor(self):
@@ -71,7 +71,7 @@ class Parser:
                           tokentypes.TokenType.STAR]):
             operator = self.previous()
             right = self.unary()
-            e = expr.Binary(expr, operator, right)
+            e = expr.Binary(e, operator, right)
         return e
 
     def unary(self):

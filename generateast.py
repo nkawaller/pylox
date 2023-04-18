@@ -13,7 +13,7 @@ def define_type(lines, basename, classname, fields):
         lines.append(f"\t\tself.{name} = {name}\n")
     lines.append("\n")
     lines.append("\tdef accept(self, visitor):\n"
-                 f"\t\treturn visitor.visit{classname}{basename}(self)"
+                 f"\t\treturn visitor.visit_{classname.lower()}_{basename.lower()}(self)"
                  "\n"
                  "\n")
 
