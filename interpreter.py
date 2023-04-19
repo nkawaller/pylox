@@ -13,7 +13,7 @@ class Interpreter(expr.Visitor):
         except RuntimeError as e:
             runtimeexception.RuntimeException(e)
     
-    def visit_literal_expr(e):
+    def visit_literal_expr(self, e):
         """Evaluate literal expressions"""
 
         return e.value
@@ -93,7 +93,7 @@ class Interpreter(expr.Visitor):
 
     def visit_binary_expr(self, e):
         """Evaluate binary expressions"""
-
+        print(f"E: {e.operator.tokentype}")
         left = self.evaluate(e.left)
         right = self.evaluate(e.right)
 
