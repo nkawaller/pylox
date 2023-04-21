@@ -31,12 +31,12 @@ class Interpreter(expr.Visitor):
 
         unary_map = {
             tokentypes.TokenType.BANG: lambda right: not self.is_truthy(right),
-            tokentypes.TokenType.MINUS: lambda right: (-float(right) if self.check_number_operand() else None)
+            tokentypes.TokenType.MINUS: lambda right, op=e.operator: (-float(right) if self.check_number_operand(op, right) else None)
         }
 
         return unary_map.get(e.operator.tokentype, None)(right)
 
-    def check_number_operand(operator, operand):
+    def check_number_operand(self, operator, operand):
         if isinstance(operand, float): return True
         raise runtimeexception.RuntimeException(operator, "Operand must be a number")
 
