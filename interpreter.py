@@ -4,6 +4,7 @@ import expr
 import runtimeexception
 import tokentypes
 
+
 class Interpreter(expr.Visitor):
     """Using the visitor pattern, execute the syntax tree itself"""
 
@@ -13,7 +14,7 @@ class Interpreter(expr.Visitor):
             print(self.stringify(value))
         except RuntimeError as e:
             runtimeexception.RuntimeException(e)
-    
+
     def visit_literal_expr(self, e):
         """Evaluate literal expressions"""
 
@@ -31,25 +32,29 @@ class Interpreter(expr.Visitor):
 
         unary_map = {
             tokentypes.TokenType.BANG: lambda right: not self.is_truthy(right),
-            tokentypes.TokenType.MINUS: lambda right, op=e.operator: (-float(right) if self.check_number_operand(op, right) else None)
+            tokentypes.TokenType.MINUS: lambda right, op=e.operator: (
+                -float(right) if self.check_number_operand(op, right) else None
+            ),
         }
 
         return unary_map.get(e.operator.tokentype, None)(right)
 
     def check_number_operand(self, operator, operand):
-        if isinstance(operand, float): return True
+        if isinstance(operand, float):
+            return True
         raise runtimeexception.RuntimeException(operator, "Operand must be a number")
 
     def check_number_operands(self, operator, left, right):
-        if isinstance(left, float) and isinstance(right, float): return True
+        if isinstance(left, float) and isinstance(right, float):
+            return True
         raise runtimeexception.RuntimeException(operator, "Operands must be a numbers")
-        
+
     def is_truthy(self, object):
         """Evaluate an object's truthiness. False and Nil are false,
         everything else is true
         """
 
-        if object == None:
+        if object is None:
             return False
         if isinstance(object, bool):
             return bool(object)
@@ -67,12 +72,12 @@ class Interpreter(expr.Visitor):
     def stringify(self, object):
         """Convert object to a string and display to user"""
 
-        if object is None: return "nil"
+        if object is None:
+            return "nil"
         if isinstance(object, float):
             text = str(object)
-            # TODO: do I need this? is it java specific?
             if text.endswith(".0"):
-                text = text[0:len(text) - 2]
+                text = text[0 : len(text) - 2]
             return text
         return str(object)
 
@@ -90,11 +95,13 @@ class Interpreter(expr.Visitor):
             return float(left) + float(right)
         if isinstance(left, str) and isinstance(right, str):
             return str(left) + str(right)
-        raise runtimeexception.RuntimeException(op, "Operators must be two numbers or two strings")
+        raise runtimeexception.RuntimeException(
+            op, "Operators must be two numbers or two strings"
+        )
 
     def visit_binary_expr(self, e):
         """Evaluate binary expressions"""
-        
+
         left = self.evaluate(e.left)
         right = self.evaluate(e.right)
 
@@ -137,8 +144,12 @@ class Interpreter(expr.Visitor):
                 if self.check_number_operands(op, left, right)
                 else None
             ),
-            tokentypes.TokenType.BANG_EQUAL: lambda left, right: not self.is_equal(left, right),
-            tokentypes.TokenType.EQUAL_EQUAL: lambda left, right: self.is_equal(left, right),
+            tokentypes.TokenType.BANG_EQUAL: lambda left, right: not self.is_equal(
+                left, right
+            ),
+            tokentypes.TokenType.EQUAL_EQUAL: lambda left, right: self.is_equal(
+                left, right
+            ),
         }
-   
-        return binary_map.get(e.operator.tokentype, None)(left, right, e.operator)
+
+        return binary_map.get(e.operator.tokentype, None)(left, right)
