@@ -21,7 +21,7 @@ class Parser:
         statements = []
         try:
             while not self.is_at_end():
-                statements.append(self.statement())
+                statements.append(self.declaration())
             return statements
         except ParseError:
             return None
@@ -30,6 +30,15 @@ class Parser:
         """The top rule of our top-down parser"""
 
         return self.equality()
+
+    def declaration(self):
+        try:
+            if self.match(tokentypes.TokenType.VAR):
+                return self.var_declaration()
+            return self.statement()
+        except ParseError:
+            self.synchronize()
+            return None
 
     def statement(self):
         if self.match([tokentypes.TokenType.PRINT]):
@@ -40,6 +49,14 @@ class Parser:
         value = self.expression()
         self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Print(value)
+
+    def var_declaration(self):
+        name = self.consume(tokentypes.TokenType.IDENTIFIER, "Expect variable name")
+        initializer = None
+        if self.match(tokentypes.TokenType.EQUAL):
+            initializer = self.expression()
+        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return stmt.Var(name, initializer)
 
     def expression_statement(self):
         e = self.expression()
@@ -121,6 +138,8 @@ class Parser:
         if self.match([tokentypes.TokenType.NUMBER,
                        tokentypes.TokenType.STRING]):
             return expr.Literal(self.previous().literal)
+        if self.match([tokentypes.TokenType.IDENTIFIER]):
+            return expr.Variable(self.previous())
         if self.match([tokentypes.TokenType.LEFT_PAREN]):
             e = self.expression()
             self.consume(tokentypes.TokenType.RIGHT_PAREN,

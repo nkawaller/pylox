@@ -90,7 +90,6 @@ class Lox:
         # print('------------------------------')
         p = parser.Parser(tokens)
         statements = p.parse()
-        # expression = p.parse()
         if cls.had_error:
             return;
         cls.interpreter.interpret(statements)

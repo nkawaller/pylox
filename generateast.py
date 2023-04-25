@@ -67,11 +67,13 @@ def main():
             "Binary   : left, operator, right",
             "Grouping : expression",
             "Literal  : value",
-            "Unary    : operator, right"
+            "Unary    : operator, right",
+            "Variable : name"
         ]
         stmt_list = [
             "Expression : expression",
-            "Print      : expression"
+            "Print      : expression",
+            "Var        : name, initializer"
         ]
         define_ast(output_dir, "Expr", expr_list)
         define_ast(output_dir, "Stmt", stmt_list)
