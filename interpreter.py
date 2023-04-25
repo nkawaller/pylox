@@ -2,18 +2,27 @@
 
 import expr
 import runtimeexception
+import stmt
 import tokentypes
 
 
-class Interpreter(expr.Visitor):
+class Interpreter(expr.Visitor, stmt.Visitor):
     """Using the visitor pattern, execute the syntax tree itself"""
 
-    def interpret(self, expression):
+    def interpret(self, statements):
         try:
-            value = self.evaluate(expression)
-            print(self.stringify(value))
+            for s in statements:
+                self.execute(s)
         except RuntimeError as e:
             runtimeexception.RuntimeException(e)
+
+    def visit_print_stmt(self, s):
+        value = self.evaluate(s.expression)
+        print(self.stringify(value))
+        return None
+
+    def visit_expression_stmt(self, e):
+        pass
 
     def visit_literal_expr(self, e):
         """Evaluate literal expressions"""
@@ -87,6 +96,9 @@ class Interpreter(expr.Visitor):
         """
 
         return e.accept(self)
+
+    def execute(self, statement):
+        statement.accept(self)
 
     def handle_arithmetic_operator(self, left, right, op):
         """Determine which type the + operator is acting on"""

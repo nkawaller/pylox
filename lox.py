@@ -89,10 +89,11 @@ class Lox:
         #     print(str(token))
         # print('------------------------------')
         p = parser.Parser(tokens)
-        expression = p.parse()
+        statements = p.parse()
+        # expression = p.parse()
         if cls.had_error:
             return;
-        cls.interpreter.interpret(expression)
+        cls.interpreter.interpret(statements)
 
     @classmethod
     def error(cls, line, message):

@@ -2,6 +2,7 @@
 
 import expr
 import lox
+import stmt
 import tokentypes
 
 class ParseError(Exception):
@@ -17,8 +18,11 @@ class Parser:
     def parse(self):
         """Initial method to kick off the parser"""
 
+        statements = []
         try:
-            return self.expression()
+            while not self.is_at_end():
+                statements.append(self.statement())
+            return statements
         except ParseError:
             return None
 
@@ -26,6 +30,21 @@ class Parser:
         """The top rule of our top-down parser"""
 
         return self.equality()
+
+    def statement(self):
+        if self.match([tokentypes.TokenType.PRINT]):
+            return self.print_statement()
+        return self.expression_statement()
+
+    def print_statement(self):
+        value = self.expression()
+        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
+        return stmt.Print(value)
+
+    def expression_statement(self):
+        e = self.expression()
+        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
+        return stmt.Expression(e)
 
     def equality(self):
         """Determine if we're looking at an equality expression"""

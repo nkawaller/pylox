@@ -120,10 +120,10 @@ class Scanner:
         while self.is_alpha_numeric(self.peek()):
             self.advance()
         text = self.source[self.start : self.current]
-        tokentype = self.keywords.get(text, None)
+        tokentype = self.keywords[text]
         if tokentype is None:
             tokentype = tokentypes.TokenType.IDENTIFIER
-        self.add_token(tokentypes.TokenType.IDENTIFIER)
+        self.add_token(tokentype)
 
     def number(self):
         """Convert numeric characters into python floats

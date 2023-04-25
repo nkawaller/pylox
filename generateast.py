@@ -64,13 +64,17 @@ def main():
     else:
         output_dir = args[0]
         expr_list = [
-            # Could this be a dict?
             "Binary   : left, operator, right",
             "Grouping : expression",
             "Literal  : value",
             "Unary    : operator, right"
         ]
+        stmt_list = [
+            "Expression : expression",
+            "Print      : expression"
+        ]
         define_ast(output_dir, "Expr", expr_list)
+        define_ast(output_dir, "Stmt", stmt_list)
 
 
 if __name__ == "__main__":
