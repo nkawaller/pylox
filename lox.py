@@ -16,8 +16,8 @@ import interpreter
 
 
 class Lox:
-    """Class used to run Lox
-    """
+    """Class used to run Lox"""
+
     args = sys.argv[1:]
     interpreter = interpreter.Interpreter()
     had_error = False

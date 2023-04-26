@@ -33,7 +33,7 @@ class Parser:
 
     def declaration(self):
         try:
-            if self.match(tokentypes.TokenType.VAR):
+            if self.match([tokentypes.TokenType.VAR]):
                 return self.var_declaration()
             return self.statement()
         except ParseError:
@@ -53,7 +53,7 @@ class Parser:
     def var_declaration(self):
         name = self.consume(tokentypes.TokenType.IDENTIFIER, "Expect variable name")
         initializer = None
-        if self.match(tokentypes.TokenType.EQUAL):
+        if self.match([tokentypes.TokenType.EQUAL]):
             initializer = self.expression()
         self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return stmt.Var(name, initializer)
