@@ -10,8 +10,6 @@ import tokentypes
 class Interpreter(expr.Visitor, stmt.Visitor):
     """Using the visitor pattern, execute the syntax tree itself"""
 
-    # def __init__(self):
-    #     environment = environment.Environment()
     environment = environment.Environment()
 
     def interpret(self, statements):
@@ -33,8 +31,9 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.environment.define(stmt.name.lexeme, value)
         return None
 
-    def visit_expression_stmt(self, e):
-        pass
+    def visit_expression_stmt(self, stmt):
+        self.evaluate(stmt.expression)
+        return None
 
     def visit_literal_expr(self, e):
         """Evaluate literal expressions"""
@@ -61,7 +60,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return unary_map.get(e.operator.tokentype, None)(right)
 
     def visit_variable_expr(self, e):
-        return self.environment.get(e.name, None)
+        return self.environment.get(e.name)
 
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):

@@ -166,7 +166,7 @@ class Parser:
         """
 
         if self.check(type):
-            self.advance()
+            return self.advance()
         else:
             self.error(self.peek(), message)
 
@@ -198,7 +198,6 @@ class Parser:
 
     def previous(self):
         """Returns previous token"""
-
         return self.tokens[self.current - 1]
 
     def error(self, token, message):

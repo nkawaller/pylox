@@ -86,7 +86,7 @@ class Lox:
         tokens = s.scan_tokens()
         # print('------------------------------')
         # for token in tokens:
-        #     print(str(token))
+        #     print(f"{str(token)}")
         # print('------------------------------')
         p = parser.Parser(tokens)
         statements = p.parse()
