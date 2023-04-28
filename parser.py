@@ -29,7 +29,7 @@ class Parser:
     def expression(self):
         """The top rule of our top-down parser"""
 
-        return self.equality()
+        return self.assignment()
 
     def declaration(self):
         try:
@@ -43,6 +43,8 @@ class Parser:
     def statement(self):
         if self.match([tokentypes.TokenType.PRINT]):
             return self.print_statement()
+        if self.match([tokentypes.TokenType.LEFT_BRACE]):
+            return stmt.Block(self.block())
         return self.expression_statement()
 
     def print_statement(self):
@@ -62,6 +64,33 @@ class Parser:
         e = self.expression()
         self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Expression(e)
+
+    def block(self):
+        """Group statement within a set of {} together"""
+        
+        statements = []
+        while not self.check(tokentypes.TokenType.RIGHT_BRACE) and not self.is_at_end():
+            statements.append(self.declaration())
+        self.consume(tokentypes.TokenType.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
+
+    def assignment(self):
+        """Determine if the = is being used to assign a value. This 
+        fn deals with the fact that we only have a single token 
+        lookahead and no backtracking
+        """
+
+        e = self.equality()
+        if self.match([tokentypes.TokenType.EQUAL]):
+            equals = self.previous()
+            value = self.assignment()
+
+            if isinstance(e, expr.Variable):
+                name = e.name
+                return expr.Assign(name, value)
+
+            self.error(equals, "Invalid assignment target")
+        return e
 
     def equality(self):
         """Determine if we're looking at an equality expression"""

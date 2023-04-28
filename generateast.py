@@ -64,6 +64,7 @@ def main():
     else:
         output_dir = args[0]
         expr_list = [
+            "Assign   : name, value",
             "Binary   : left, operator, right",
             "Grouping : expression",
             "Literal  : value",
@@ -71,6 +72,7 @@ def main():
             "Variable : name"
         ]
         stmt_list = [
+            "Block      : statements",
             "Expression : expression",
             "Print      : expression",
             "Var        : name, initializer"

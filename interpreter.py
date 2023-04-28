@@ -31,6 +31,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.environment.define(stmt.name.lexeme, value)
         return None
 
+    def visit_assign_expr(self, e):
+        value = self.evaluate(e.value)
+        self.environment.assign(e.name, value)
+        return value
+        
     def visit_expression_stmt(self, stmt):
         self.evaluate(stmt.expression)
         return None
@@ -113,6 +118,19 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def execute(self, statement):
         statement.accept(self)
+
+    def execute_block(self, statements, environment):
+        previous = self.environment
+        try:
+            self.environment = environment
+            for s in statements:
+                self.execute(s)
+        finally:
+            self.environment = previous
+
+    def visit_block_stmt(self, s):
+        self.execute_block(s.statements, environment.Environment(self.environment))
+        return None
 
     def handle_arithmetic_operator(self, left, right, op):
         """Determine which type the + operator is acting on"""
