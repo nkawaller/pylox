@@ -41,11 +41,28 @@ class Parser:
             return None
 
     def statement(self):
+        if self.match([tokentypes.TokenType.IF]):
+            return self.if_statement()
         if self.match([tokentypes.TokenType.PRINT]):
             return self.print_statement()
         if self.match([tokentypes.TokenType.LEFT_BRACE]):
             return stmt.Block(self.block())
         return self.expression_statement()
+
+    def if_statement(self):
+        """Method to parse if-statements"""
+
+        self.consume(tokentypes.TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
+        condition = self.expression()
+        self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
+
+        then_branch = self.statement()
+        else_branch = None
+        if self.match([tokentypes.TokenType.ELSE]):
+            else_branch = self.statement()
+
+        return stmt.If(condition, then_branch, else_branch)
+
 
     def print_statement(self):
         value = self.expression()

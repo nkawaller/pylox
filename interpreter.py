@@ -25,6 +25,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return None
 
     def visit_var_stmt(self, stmt):
+        # TODO: rename to s?
         value = None
         if stmt.initializer is not None:
             value = self.evaluate(stmt.initializer)
@@ -37,7 +38,19 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return value
         
     def visit_expression_stmt(self, stmt):
+        # TODO: rename to s?
         self.evaluate(stmt.expression)
+        return None
+
+    def visit_if_stmt(self, s):
+        """Execute if branch if it evaluates to True. Otherwise 
+        execute the else branch (if there is one)
+        """
+
+        if self.is_truthy(self.evaluate(s.condition)):
+            self.execute(s.then_branch)
+        elif s.else_branch is not None:
+            self.execute(s.else_branch)
         return None
 
     def visit_literal_expr(self, e):

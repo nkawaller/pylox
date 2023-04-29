@@ -74,6 +74,7 @@ def main():
         stmt_list = [
             "Block      : statements",
             "Expression : expression",
+            "If         : condition, then_branch, else_branch",
             "Print      : expression",
             "Var        : name, initializer"
         ]
