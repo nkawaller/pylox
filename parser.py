@@ -63,7 +63,6 @@ class Parser:
 
         return stmt.If(condition, then_branch, else_branch)
 
-
     def print_statement(self):
         value = self.expression()
         self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
@@ -97,7 +96,7 @@ class Parser:
         lookahead and no backtracking
         """
 
-        e = self.equality()
+        e = self.is_or()
         if self.match([tokentypes.TokenType.EQUAL]):
             equals = self.previous()
             value = self.assignment()
@@ -109,6 +108,26 @@ class Parser:
             self.error(equals, "Invalid assignment target")
         return e
 
+    def is_or(self):
+        """Parse 'or' expressions"""
+
+        e = self.is_and()
+        while self.match([tokentypes.TokenType.OR]):
+            operator = self.previous()
+            right = self.is_and()
+            e = expr.Logical(e, operator, right)
+        return e
+
+    def is_and(self):
+        """Parse 'and' expressions"""
+        
+        e = self.equality()
+        while self.match([tokentypes.TokenType.AND]):
+            operator = self.previous()
+            right = self.equality()
+            e = expr.Logical(e, operator, right)
+        return e
+        
     def equality(self):
         """Determine if we're looking at an equality expression"""
 

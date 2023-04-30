@@ -58,6 +58,18 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
         return e.value
 
+    def visit_logical_expr(self, e):
+        """Evaluate logical expressions"""
+
+        left = self.evaluate(e.left)
+        if e.operator.tokentype == tokentypes.TokenType.OR:
+            if self.is_truthy(left):
+                return left
+        else:
+            if not self.is_truthy(left):
+                    return left
+        return self.evaluate(e.right)
+
     def visit_grouping_expr(self, e):
         """Evaluate grouping expressions"""
 
