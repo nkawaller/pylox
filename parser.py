@@ -41,13 +41,53 @@ class Parser:
             return None
 
     def statement(self):
+        if self.match([tokentypes.TokenType.FOR]):
+            return self.for_statement()
         if self.match([tokentypes.TokenType.IF]):
             return self.if_statement()
         if self.match([tokentypes.TokenType.PRINT]):
             return self.print_statement()
+        if self.match([tokentypes.TokenType.WHILE]):
+            return self.while_statement()
         if self.match([tokentypes.TokenType.LEFT_BRACE]):
             return stmt.Block(self.block())
         return self.expression_statement()
+
+    def for_statement(self):
+        """Method to parse for loops"""
+
+        self.consume(tokentypes.TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+        initializer = None
+        if self.match([tokentypes.TokenType.SEMICOLON]):
+            initializer = None
+        elif self.match([tokentypes.TokenType.VAR]):
+            initializer = self.var_declaration()
+        else:
+            initializer = self.expression_statement()
+
+        condition = None
+        if not self.check(tokentypes.TokenType.SEMICOLON):
+            condition = self.expression()
+        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after loop condtion.")
+
+        increment = None
+        if not self.check(tokentypes.TokenType.RIGHT_PAREN):
+            increment = self.expression()
+        self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+
+        body = self.statement()
+
+        if increment is not None:
+            body = stmt.Block([body, stmt.Expression(increment)])
+
+        if condition == None:
+            condition = expr.Literal(True)
+        body = stmt.While(condition, body)
+
+        if initializer is not None:
+            body = stmt.Block([initializer, body])
+
+        return body
 
     def if_statement(self):
         """Method to parse if-statements"""
@@ -75,6 +115,15 @@ class Parser:
             initializer = self.expression()
         self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return stmt.Var(name, initializer)
+
+    def while_statement(self):
+        """Parse while statements"""
+
+        self.consume(tokentypes.TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition = self.expression()
+        self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after condition.")
+        body = self.statement()
+        return stmt.While(condition, body)
 
     def expression_statement(self):
         e = self.expression()
@@ -120,7 +169,7 @@ class Parser:
 
     def is_and(self):
         """Parse 'and' expressions"""
-        
+
         e = self.equality()
         while self.match([tokentypes.TokenType.AND]):
             operator = self.previous()

@@ -32,6 +32,14 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.environment.define(stmt.name.lexeme, value)
         return None
 
+    def visit_while_stmt(self, s):
+        """Execute the while statment body until the condition is no
+        longer true
+        """
+        while self.is_truthy(self.evaluate(s.condition)):
+            self.execute(s.body)
+        return None
+
     def visit_assign_expr(self, e):
         value = self.evaluate(e.value)
         self.environment.assign(e.name, value)
