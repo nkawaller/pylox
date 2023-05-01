@@ -66,6 +66,7 @@ def main():
         expr_list = [
             "Assign   : name, value",
             "Binary   : left, operator, right",
+            "Call     : callee, paren, arguments",
             "Grouping : expression",
             "Literal  : value",
             "Logical  : left, operator, right",
