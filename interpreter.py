@@ -2,6 +2,7 @@
 
 import environment
 import expr
+import loxcallable
 import runtimeexception
 import stmt
 import tokentypes
@@ -10,7 +11,8 @@ import tokentypes
 class Interpreter(expr.Visitor, stmt.Visitor):
     """Using the visitor pattern, execute the syntax tree itself"""
 
-    environment = environment.Environment()
+    globals = environment.Environment() # fixed reference to outermost global scope
+    environment = globals # keeps track of current environment
 
     def interpret(self, statements):
         try:
@@ -230,3 +232,17 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         }
 
         return binary_map.get(e.operator.tokentype, None)(left, right)
+
+    def visit_call_expr(self, e):
+        callee = self.evaluate(e.callee)
+        arguments = []
+        for argument in e.arguments:
+            arguments.append(self.evaluate(argument))
+        if not isinstance(loxcallable.LoxCallable, callee):
+            raise runtimeexception.RuntimeException(
+                e.paren, "Can only call functions and classes.")
+        function = loxcallable.LoxCallable(callee)
+        if len(arguments) != function.arity():
+            raise runtimeexception.RuntimeException(
+                e.paren, f"Expected {function.arity()} arguments but got {arguments.size}.")
+        return function.call(self, arguments)

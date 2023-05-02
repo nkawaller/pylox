@@ -1,5 +1,6 @@
 """Parser Class"""
 
+from lib2to3.pgen2 import token
 import expr
 import lox
 import stmt
@@ -235,7 +236,30 @@ class Parser:
             right = self.unary()
             return expr.Unary(operator, right)
 
-        return self.primary()
+        return self.call()
+
+    def finish_call(self, callee):
+        arguments = []
+        if not self.check(tokentypes.TokenType.RIGHT_PAREN):
+            while True:
+                if len(arguments) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 arguments.")
+                arguments.append(self.expression())
+                if not self.match([tokentypes.TokenType.COMMA]):
+                    break
+        paren = self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
+        return expr.Call(callee, paren, arguments)
+
+    def call(self):
+        """Determine if we're looking at a function call"""
+        
+        e = self.primary()
+        while True:
+            if self.match([tokentypes.TokenType.LEFT_PAREN]):
+                e = self.finish_call(e)
+            else:
+                break
+        return e
 
     def primary(self):
         """If we haven't matched any of the other rules, then we're
