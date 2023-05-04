@@ -13,7 +13,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def __init__(self):
         self.globals = environment.Environment()    # fixed reference to outermost global scope
-        self.environment = globals                  # keeps track of current environment
+        self.environment = self.globals             # keeps track of current environment
 
     def interpret(self, statements):
         try:
