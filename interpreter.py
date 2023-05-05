@@ -1,5 +1,6 @@
 """Interpreter class"""
 
+import clock
 import environment
 import expr
 import loxcallable
@@ -12,8 +13,9 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     """Using the visitor pattern, execute the syntax tree itself"""
 
     def __init__(self):
-        self.globals = environment.Environment()    # fixed reference to outermost global scope
-        self.environment = self.globals             # keeps track of current environment
+        self.globals = environment.Environment()     # fixed reference to outermost global scope
+        self.environment = self.globals              # keeps track of current environment
+        self.globals.define("clock", clock.Clock())  # add 'clock' key:val to the global environment
 
     def interpret(self, statements):
         try:

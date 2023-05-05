@@ -34,6 +34,8 @@ class Parser:
 
     def declaration(self):
         try:
+            if self.match([tokentypes.TokenType.FUN]):
+                return self.function("function")
             if self.match([tokentypes.TokenType.VAR]):
                 return self.var_declaration()
             return self.statement()
@@ -130,6 +132,20 @@ class Parser:
         e = self.expression()
         self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Expression(e)
+
+    def function(self, kind):
+        name = self.consume(tokentypes.TokenType.IDENTIFIER, f"Expect {kind} name.")
+        self.consume(tokentypes.TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
+        parameters = []
+        if not self.check(tokentypes.TokenType.RIGHT_PAREN):
+            while True:
+                if len(parameters) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 parameters.")
+                parameters.append(
+                    self.consume(
+                        tokentypes.TokenType.IDENTIFIER, "Expect parameter name."))
+                if not self.match(tokentypes.TokenType.COMMA):
+                    break
 
     def block(self):
         """Group statement within a set of {} together"""
