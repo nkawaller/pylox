@@ -146,6 +146,10 @@ class Parser:
                         tokentypes.TokenType.IDENTIFIER, "Expect parameter name."))
                 if not self.match(tokentypes.TokenType.COMMA):
                     break
+        self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+        self.consume(tokentypes.TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.")
+        body = self.block()
+        return stmt.Function(name, parameters, body)
 
     def block(self):
         """Group statement within a set of {} together"""
