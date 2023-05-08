@@ -3,6 +3,7 @@
 import clock
 import environment
 import expr
+import loxfunction
 import loxcallable
 import runtimeexception
 import stmt
@@ -53,6 +54,16 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     def visit_expression_stmt(self, stmt):
         # TODO: rename to s?
         self.evaluate(stmt.expression)
+        return None
+
+    def visit_function_stmt(self, s):
+        """Take a compile-time representation of the function and 
+        convert it to its runtime representation
+        """
+
+        function = loxfunction.LoxFunction(s)
+        # Bind fn to a var in current environment
+        self.environment.define(s.name.lexeme, function)
         return None
 
     def visit_if_stmt(self, s):
@@ -241,11 +252,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         arguments = []
         for argument in e.arguments:
             arguments.append(self.evaluate(argument))
-        if not isinstance(loxcallable.LoxCallable, callee):
+        if not isinstance(callee, loxfunction.LoxFunction):
             raise runtimeexception.RuntimeException(
                 e.paren, "Can only call functions and classes.")
-        function = loxcallable.LoxCallable(callee)
+        function = loxfunction.LoxFunction(callee)
         if len(arguments) != function.arity():
             raise runtimeexception.RuntimeException(
-                e.paren, f"Expected {function.arity()} arguments but got {arguments.size}.")
+                e.paren, f"Expected {function.arity()} arguments but got {len(arguments)}.")
         return function.call(self, arguments)

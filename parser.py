@@ -1,6 +1,5 @@
 """Parser Class"""
 
-from lib2to3.pgen2 import token
 import expr
 import lox
 import stmt
@@ -144,7 +143,7 @@ class Parser:
                 parameters.append(
                     self.consume(
                         tokentypes.TokenType.IDENTIFIER, "Expect parameter name."))
-                if not self.match(tokentypes.TokenType.COMMA):
+                if not self.match([tokentypes.TokenType.COMMA]):
                     break
         self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
         self.consume(tokentypes.TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.")
