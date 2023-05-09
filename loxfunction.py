@@ -17,10 +17,8 @@ class LoxFunction(loxcallable.LoxCallable):
 
     def call(self, interpreter, arguments):
         env = environment.Environment(interpreter.globals)
-        for i in len(self.declaration.params):
-            #TODO: this syntax isn't right, probably need dec["key"].lexeme
+        for i in range(len(self.declaration.params)):
             env.define(
-                self.declaration.params.get(i).lexeme, 
-                arguments.get(i))
+                self.declaration.params[i].lexeme, arguments[i])
         interpreter.execute_block(self.declaration.body, env)
         return None
