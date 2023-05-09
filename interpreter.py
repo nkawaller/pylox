@@ -5,6 +5,7 @@ import environment
 import expr
 import loxfunction
 import loxcallable
+import returnvalue
 import runtimeexception
 import stmt
 import tokentypes
@@ -30,12 +31,17 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         print(self.stringify(value))
         return None
 
-    def visit_var_stmt(self, stmt):
-        # TODO: rename to s?
+    def visit_return_stmt(self, s):
         value = None
-        if stmt.initializer is not None:
-            value = self.evaluate(stmt.initializer)
-        self.environment.define(stmt.name.lexeme, value)
+        if s.value is not None:
+            value = self.evaluate(s.value)
+        raise returnvalue.Return(value)
+
+    def visit_var_stmt(self, s):
+        value = None
+        if s.initializer is not None:
+            value = self.evaluate(s.initializer)
+        self.environment.define(s.name.lexeme, value)
         return None
 
     def visit_while_stmt(self, s):

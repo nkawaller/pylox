@@ -2,6 +2,7 @@
 
 import environment
 import loxcallable
+import returnvalue
 
 
 class LoxFunction(loxcallable.LoxCallable):
@@ -20,5 +21,8 @@ class LoxFunction(loxcallable.LoxCallable):
         for i in range(len(self.declaration.params)):
             env.define(
                 self.declaration.params[i].lexeme, arguments[i])
-        interpreter.execute_block(self.declaration.body, env)
+        try:
+            interpreter.execute_block(self.declaration.body, env)
+        except returnvalue.Return as r:
+            return r.value
         return None

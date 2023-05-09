@@ -49,6 +49,8 @@ class Parser:
             return self.if_statement()
         if self.match([tokentypes.TokenType.PRINT]):
             return self.print_statement()
+        if self.match([tokentypes.TokenType.RETURN]):
+            return self.return_statement()
         if self.match([tokentypes.TokenType.WHILE]):
             return self.while_statement()
         if self.match([tokentypes.TokenType.LEFT_BRACE]):
@@ -109,6 +111,14 @@ class Parser:
         value = self.expression()
         self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Print(value)
+
+    def return_statement(self):
+        keyword = self.previous()
+        value = None
+        if not self.check([tokentypes.TokenType.SEMICOLON]):
+            value = self.expression()
+        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after return value.")
+        return stmt.Return(keyword, value)
 
     def var_declaration(self):
         name = self.consume(tokentypes.TokenType.IDENTIFIER, "Expect variable name")
