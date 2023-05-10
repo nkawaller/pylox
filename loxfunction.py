@@ -7,8 +7,9 @@ import returnvalue
 
 class LoxFunction(loxcallable.LoxCallable):
 
-    def __init__(self, declaration):
+    def __init__(self, declaration, closure):
         self.declaration = declaration
+        self.closure = closure
 
     def to_string(self):
         return f"<fn {self.declaration.name.lexeme}>"
@@ -17,7 +18,7 @@ class LoxFunction(loxcallable.LoxCallable):
         return len(self.declaration.params)
 
     def call(self, interpreter, arguments):
-        env = environment.Environment(interpreter.globals)
+        env = environment.Environment(self.closure)
         for i in range(len(self.declaration.params)):
             env.define(
                 self.declaration.params[i].lexeme, arguments[i])

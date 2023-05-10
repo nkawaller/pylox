@@ -67,7 +67,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         convert it to its runtime representation
         """
 
-        function = loxfunction.LoxFunction(s)
+        function = loxfunction.LoxFunction(s, self.environment)
         # Bind fn to a var in current environment
         self.environment.define(s.name.lexeme, function)
         return None
