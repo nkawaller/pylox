@@ -18,6 +18,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.globals = environment.Environment()     # fixed reference to outermost global scope
         self.environment = self.globals              # keeps track of current environment
         self.globals.define("clock", clock.Clock())  # add 'clock' key:val to the global environment
+        self.locals = {}
 
     def interpret(self, statements):
         try:
@@ -54,7 +55,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visit_assign_expr(self, e):
         value = self.evaluate(e.value)
-        self.environment.assign(e.name, value)
+        distance = self.locals[e]
+        if distance:
+            self.environment.assignAt(distance, e.name, value)
+        else:
+            self.globals.assign(e.name, value)
         return value
         
     def visit_expression_stmt(self, stmt):
@@ -120,7 +125,14 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return unary_map.get(e.operator.tokentype, None)(right)
 
     def visit_variable_expr(self, e):
-        return self.environment.get(e.name)
+        return self.lookup_variable(e.name, e)
+
+    def lookup_variable(self, name, e):
+        distance = self.locals[e]
+        if distance:
+            return environment.get_at(distance, name.lexeme)
+        else:
+            return self.globals[name]
 
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):
@@ -173,6 +185,9 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def execute(self, statement):
         statement.accept(self)
+
+    def resolve(self, e, depth):
+        self.locals[expr] = depth
 
     def execute_block(self, statements, environment):
         previous = self.environment

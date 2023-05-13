@@ -8,8 +8,10 @@ Usage
 script : python3 lox.py <filename>
 prompt : python3 lox.py
 """
+
 import sys
 import parser
+import resolver
 import scanner
 import tokentypes
 import interpreter
@@ -92,6 +94,9 @@ class Lox:
         statements = p.parse()
         if cls.had_error:
             return;
+        r = resolver.Resolver(cls.interpreter)
+        r.resolve(statements)
+        if cls.had_error: return
         cls.interpreter.interpret(statements)
 
     @classmethod

@@ -38,3 +38,14 @@ class Environment:
         variables is allowed.
         """
         self.values[name] = value
+
+    def ancestor(self, distance):
+        for _ in range(distance):
+            environment = environment.enclosing
+        return environment
+
+    def get_at(self, distance, name):
+        return self.ancestor(distance).values.get(name)
+
+    def assign_at(self, distance, name, value):
+        self.ancestor(distance).values[name.lexeme] = value
