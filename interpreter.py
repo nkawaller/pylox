@@ -55,7 +55,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visit_assign_expr(self, e):
         value = self.evaluate(e.value)
-        distance = self.locals[e]
+        distance = self.locals.get(e, None)
         if distance:
             self.environment.assignAt(distance, e.name, value)
         else:
@@ -128,11 +128,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return self.lookup_variable(e.name, e)
 
     def lookup_variable(self, name, e):
-        distance = self.locals[e]
+        distance = self.locals.get(e, None)
         if distance:
             return environment.get_at(distance, name.lexeme)
         else:
-            return self.globals[name]
+            return self.globals.get(name) # This get() is an Environment method, not python's
 
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):

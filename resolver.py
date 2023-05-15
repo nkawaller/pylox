@@ -24,7 +24,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
     def visit_block_stmt(self, s):
         self.begin_scope()
         self.resolve(s.statements)
-        self.endScope()
+        self.end_scope()
         return None
 
     def visit_expression_stmt(self, s):
@@ -78,7 +78,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
 
     def visit_assign_expr(self, e):
         self.resolve(e.value)
-        self.resolveLocal(e, e.name)
+        self.resolve_local(e, e.name)
         return None
 
     def visit_binary_expr(self, e):
@@ -109,26 +109,19 @@ class Resolver(expr.Visitor, stmt.Visitor):
 
     def visit_variable_expr(self, e):
         # TODO: do I need Boolean.False here?
-        if self.scopes and self.scopes[-1][e.name.lexeme] == False:
+        if self.scopes and self.scopes[-1].get(e.name.lexeme, None) == False:
             lox.Lox.error(e.name, 
                 "Can't read local variable in its own initializer.")
         self.resolve_local(e, e.name)
         return None
 
-    # def resolve(self, X):
-    #     for i in X:
-    #         i.accept(self)
+    def resolve(self, x):
+        if isinstance(x, list):
+            for y in x:
+                y.accept(self)
+        else:
+            x.accept(self)
             
-    def resolve(self, statements):
-        for statement in statements:
-            self.resolve_stmt(statement)
-
-    def resolve_stmt(self, s):
-        s.accept(self)
-
-    def resolve_expr(self, e):
-        e.accept(self)
-
     def resolve_function(self, fn, fn_type):
         enclosing_fn = self.current_fn
         self.current_fn = fn_type
