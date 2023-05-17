@@ -55,6 +55,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visit_assign_expr(self, e):
         value = self.evaluate(e.value)
+        # Should this be: distance = self.locals.get(e.name)
         distance = self.locals.get(e, None)
         if distance:
             self.environment.assignAt(distance, e.name, value)
@@ -128,6 +129,8 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return self.lookup_variable(e.name, e)
 
     def lookup_variable(self, name, e):
+        print(f"NAME: {name}")
+        print(f"E: {e}")
         distance = self.locals.get(e, None)
         if distance:
             return environment.get_at(distance, name.lexeme)
