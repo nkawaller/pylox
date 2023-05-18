@@ -129,11 +129,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return self.lookup_variable(e.name, e)
 
     def lookup_variable(self, name, e):
-        distance = self.locals.get(e, None)
+        distance = self.locals.get(e, None)         # Python dict built-in get()
         if distance:
             return self.environment.get_at(distance, name.lexeme)
         else:
-            return self.globals.get(name) # This get() is an Environment method, not python's
+            return self.globals.get(name)           # Environment method get(), not python's
 
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):

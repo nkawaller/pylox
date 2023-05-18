@@ -1,5 +1,6 @@
 """Class that performs a variable resolution pass"""
 
+from re import A
 import lox
 import expr
 import stmt
@@ -55,6 +56,10 @@ class Resolver(expr.Visitor, stmt.Visitor):
         return None
 
     def visit_return_stmt(self, s):
+        #TODO: current_fn is coming in as NONE, why?
+        print(f"STMT: {s}")
+        print(f"VALU: {s.value}")
+        print(f"CURR_FN: {self.current_fn}")
         if self.current_fn == self.FunctionType.NONE:
             lox.Lox.error(s.keyword, 
                 "Can't return from top level code.")
