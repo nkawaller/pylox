@@ -40,6 +40,7 @@ class Environment:
         self.values[name] = value
 
     def ancestor(self, distance):
+        environment = self
         for _ in range(distance):
             environment = environment.enclosing
         return environment

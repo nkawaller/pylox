@@ -64,8 +64,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
 
     def visit_var_stmt(self, s):
         self.declare(s.name)
-        # TODO: shorten this
-        if s.initializer is not None:
+        if s.initializer:
             self.resolve(s.initializer)
         self.define(s.name)
         return None
@@ -84,6 +83,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
     def visit_binary_expr(self, e):
         self.resolve(e.right)
         self.resolve(e.left)
+        return None
 
     def visit_call_expr(self, e):
         self.resolve(e.callee)
@@ -157,4 +157,5 @@ class Resolver(expr.Visitor, stmt.Visitor):
         for i in range(len(self.scopes)-1, -1, -1):
             if name.lexeme in self.scopes[i]:
                 self.interpreter.resolve(e, len(self.scopes) - 1 - i)
+                return
     

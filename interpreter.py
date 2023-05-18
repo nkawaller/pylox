@@ -58,7 +58,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         # Should this be: distance = self.locals.get(e.name)
         distance = self.locals.get(e, None)
         if distance:
-            self.environment.assignAt(distance, e.name, value)
+            self.environment.assign_at(distance, e.name, value)
         else:
             self.globals.assign(e.name, value)
         return value
@@ -129,11 +129,9 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return self.lookup_variable(e.name, e)
 
     def lookup_variable(self, name, e):
-        print(f"NAME: {name}")
-        print(f"E: {e}")
         distance = self.locals.get(e, None)
         if distance:
-            return environment.get_at(distance, name.lexeme)
+            return self.environment.get_at(distance, name.lexeme)
         else:
             return self.globals.get(name) # This get() is an Environment method, not python's
 
@@ -190,7 +188,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         statement.accept(self)
 
     def resolve(self, e, depth):
-        self.locals[expr] = depth
+        self.locals[e] = depth
 
     def execute_block(self, statements, environment):
         previous = self.environment

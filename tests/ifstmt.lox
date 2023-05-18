@@ -1,0 +1,7 @@
+var a = 7;
+
+if (a > 5) {
+    print "greater than five";
+} else {
+    print "less than five";
+}
