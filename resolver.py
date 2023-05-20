@@ -1,6 +1,7 @@
 """Class that performs a variable resolution pass"""
 
-from re import A
+
+from re import I
 import lox
 import expr
 import stmt
@@ -13,8 +14,8 @@ class Resolver(expr.Visitor, stmt.Visitor):
     """
 
     class FunctionType(Enum):
-        NONE = ""
-        FUNCTION = ""
+        NONE = "NONE"
+        FUNCTION = "FUNCTION"
     
     scopes = []
     current_fn = FunctionType.NONE
@@ -29,8 +30,6 @@ class Resolver(expr.Visitor, stmt.Visitor):
         return None
 
     def visit_expression_stmt(self, s):
-        # TODO: should this call resolve_expr or just resolve?
-        # Or should I just have resolve() handle both?
         self.resolve(s.expression)
         return None
 
@@ -56,14 +55,10 @@ class Resolver(expr.Visitor, stmt.Visitor):
         return None
 
     def visit_return_stmt(self, s):
-        #TODO: current_fn is coming in as NONE, why?
-        print(f"STMT: {s}")
-        print(f"VALU: {s.value}")
-        print(f"CURR_FN: {self.current_fn}")
         if self.current_fn == self.FunctionType.NONE:
             lox.Lox.error(s.keyword, 
                 "Can't return from top level code.")
-        if s.value: 
+        if s.value is not None:
             self.resolve(s.value)
         return None
 
@@ -113,19 +108,18 @@ class Resolver(expr.Visitor, stmt.Visitor):
         return None
 
     def visit_variable_expr(self, e):
-        # TODO: do I need Boolean.False here?
         if self.scopes and self.scopes[-1].get(e.name.lexeme, None) == False:
             lox.Lox.error(e.name, 
                 "Can't read local variable in its own initializer.")
         self.resolve_local(e, e.name)
         return None
 
-    def resolve(self, x):
-        if isinstance(x, list):
-            for y in x:
-                y.accept(self)
+    def resolve(self, input):
+        if isinstance(input, list):
+            for statement in input:
+                statement.accept(self)
         else:
-            x.accept(self)
+            input.accept(self)
             
     def resolve_function(self, fn, fn_type):
         enclosing_fn = self.current_fn
