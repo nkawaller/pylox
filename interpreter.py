@@ -130,7 +130,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def lookup_variable(self, name, e):
         distance = self.locals.get(e, None)         # Python dict built-in get()
-        if distance:
+        if distance is not None:                    # Looking for an int, not a boolean
             return self.environment.get_at(distance, name.lexeme)
         else:
             return self.globals.get(name)           # Environment method get(), not python's

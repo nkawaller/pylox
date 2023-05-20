@@ -1,12 +1,4 @@
-
 {
-    var a = "first";
-    var b = "second";
-    var c = "third";
-    if true {
-        print "T";
-    }
-    if false {
-        print "F";
-    }
+    var a = "hello";
+    print a;
 }
