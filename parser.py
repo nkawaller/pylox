@@ -33,6 +33,8 @@ class Parser:
 
     def declaration(self):
         try:
+            if self.match([tokentypes.TokenType.CLASS]):
+                return self.class_declaration()
             if self.match([tokentypes.TokenType.FUN]):
                 return self.function("function")
             if self.match([tokentypes.TokenType.VAR]):
@@ -41,6 +43,19 @@ class Parser:
         except ParseError:
             self.synchronize()
             return None
+
+    def class_declaration(self):
+        name = self.consume(
+            tokentypes.TokenType.IDENTIFIER, "Expect a class name.")
+        self.consume(
+            tokentypes.TokenType.LEFT_BRACE, "Expect '{' before class body.")
+        methods = []
+        while not self.check(
+            tokentypes.TokenType.RIGHT_BRACE) and not self.is_at_end():
+            methods.append(self.function("method"))
+        self.consume(
+            tokentypes.TokenType.RIGHT_BRACE, "Expect '}' after class body.")
+        return stmt.Class(name, methods)
 
     def statement(self):
         if self.match([tokentypes.TokenType.FOR]):
@@ -331,7 +346,6 @@ class Parser:
         """Look for the closing paren and report error if some 
         other token is found
         """
-
         if self.check(type):
             return self.advance()
         else:

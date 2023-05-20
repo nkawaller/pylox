@@ -3,6 +3,7 @@
 import clock
 import environment
 import expr
+import loxclass
 import loxfunction
 import loxcallable
 import returnvalue
@@ -201,6 +202,12 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visit_block_stmt(self, s):
         self.execute_block(s.statements, environment.Environment(self.environment))
+        return None
+
+    def visit_class_stmt(self, s):
+        self.environment.define(s.name.lexeme, None)
+        klass = loxclass.LoxClass(s.name.lexeme)
+        self.environment.assign(s.name, klass)
         return None
 
     def handle_arithmetic_operator(self, left, right, op):
