@@ -4,6 +4,7 @@ import clock
 import environment
 import expr
 import loxclass
+import loxinstance as li
 import loxfunction
 import loxcallable
 import returnvalue
@@ -106,6 +107,15 @@ class Interpreter(expr.Visitor, stmt.Visitor):
             if not self.is_truthy(left):
                     return left
         return self.evaluate(e.right)
+
+    def visit_set_expr(self, e):
+        object = self.evaluate(e.object)
+        if not isinstance(object, li.LoxInstance):
+            raise runtimeexception.RuntimeException(
+                e.name, "Only instances have fields."
+            )
+        value = self.evaluate(e.value)
+        li.LoxInstance(object).set(e.name, value)
 
     def visit_grouping_expr(self, e):
         """Evaluate grouping expressions"""
@@ -289,3 +299,12 @@ class Interpreter(expr.Visitor, stmt.Visitor):
             raise runtimeexception.RuntimeException(
                 e.paren, f"Expected {function.arity()} arguments but got {len(arguments)}.")
         return function.call(self, arguments)
+
+    def visit_get_expr(self, e):
+        object = self.evaluate(e.object)
+        if isinstance(object, li.LoxInstance):
+            # TODO: do we need to cast this?
+            return li.LoxInstance(object).get(e.name)
+        raise runtimeexception.RuntimeException(
+            "Only instances have properties."
+        )

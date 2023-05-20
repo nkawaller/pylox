@@ -198,6 +198,9 @@ class Parser:
             if isinstance(e, expr.Variable):
                 name = e.name
                 return expr.Assign(name, value)
+            if isinstance(e, expr.Expr.Get):
+                get = expr.Get(e)
+                return expr.Set(get.object, get.name, value)
 
             self.error(equals, "Invalid assignment target")
         return e
@@ -301,6 +304,11 @@ class Parser:
         while True:
             if self.match([tokentypes.TokenType.LEFT_PAREN]):
                 e = self.finish_call(e)
+            if self.match([tokentypes.TokenType.DOT]):
+                name = self.consume(
+                    tokentypes.TokenType.IDENTIFIER, "Expect property name after '.'.")
+                # TODO: two 'e' vars here - need to rename one?
+                e = expr.Expr.Get(e, name)
             else:
                 break
         return e

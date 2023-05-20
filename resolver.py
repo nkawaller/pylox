@@ -1,7 +1,6 @@
 """Class that performs a variable resolution pass"""
 
 
-from re import I
 import lox
 import expr
 import stmt
@@ -96,6 +95,10 @@ class Resolver(expr.Visitor, stmt.Visitor):
             self.resolve(argument)
         return None
 
+    def visit_get_expr(self, e):
+        self.resolve(e.object)
+        return None
+
     def visit_grouping_expr(self, e):
         self.resolve(e.expression)
         return None
@@ -106,6 +109,11 @@ class Resolver(expr.Visitor, stmt.Visitor):
     def visit_logical_expr(self, e):
         self.resolve(e.left)
         self.resolve(e.right)
+        return None
+
+    def visit_set_expr(self, e):
+        self.resolve(e.value)
+        self.resolve(e.object)
         return None
 
     def visit_unary_expr(self, e):
