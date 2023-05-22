@@ -15,6 +15,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
     class FunctionType(Enum):
         NONE = "NONE"
         FUNCTION = "FUNCTION"
+        METHOD = "METHOD"
     
     scopes = []
     current_fn = FunctionType.NONE
@@ -31,6 +32,9 @@ class Resolver(expr.Visitor, stmt.Visitor):
     def visit_class_stmt(self, s):
         self.declare(s.name)
         self.define(s.name)
+        for method in s.methods:
+            declaration = self.FunctionType.METHOD
+            self.resolve_function(method, declaration)
         return None
 
     def visit_expression_stmt(self, s):

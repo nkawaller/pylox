@@ -216,7 +216,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visit_class_stmt(self, s):
         self.environment.define(s.name.lexeme, None)
-        klass = loxclass.LoxClass(s.name.lexeme)
+        methods = {}
+        for method in s.methods:
+            fn = loxfunction.LoxFunction(method, self.environment)
+            methods[method.name.lexeme] = fn
+        klass = loxclass.LoxClass(s.name.lexeme, methods)
         self.environment.assign(s.name, klass)
         return None
 
@@ -303,8 +307,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     def visit_get_expr(self, e):
         object = self.evaluate(e.object)
         if isinstance(object, li.LoxInstance):
-            # TODO: do we need to cast this?
-            return li.LoxInstance(object).get(e.name)
+            return object.get(e.name)
         raise runtimeexception.RuntimeException(
             "Only instances have properties."
         )

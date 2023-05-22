@@ -10,11 +10,17 @@ class LoxClass(lc.LoxCallable):
     instances of itself.
     """
 
-    def __init__(self, name):
+    def __init__(self, name, methods):
         self.name = name
+        self.methods = methods          # TODO: this was supposed to be a cls property; may need to revisit
 
     def __str__(self):
         return self.name
+
+    def find_method(self, name):
+        if name in self.methods:
+            return self.methods[name]
+        return None
 
     def call(self, interpreter, arguments):
         instance = li.LoxInstance(self)

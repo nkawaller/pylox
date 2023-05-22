@@ -1,7 +1,8 @@
 class DevonshireCream {
-  serveOn() {
-    return "Scones";
+  eat() {
+    print "mmmmmmmmmmm tasty!";
   }
 }
 
-print DevonshireCream;
+DevonshireCream().eat();
+

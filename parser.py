@@ -308,7 +308,7 @@ class Parser:
                 name = self.consume(
                     tokentypes.TokenType.IDENTIFIER, "Expect property name after '.'.")
                 # TODO: two 'e' vars here - need to rename one?
-                e = expr.Expr.Get(e, name)
+                e = expr.Get(e, name)
             else:
                 break
         return e
