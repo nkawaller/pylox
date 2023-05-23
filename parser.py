@@ -198,8 +198,8 @@ class Parser:
             if isinstance(e, expr.Variable):
                 name = e.name
                 return expr.Assign(name, value)
-            if isinstance(e, expr.Expr.Get):
-                get = expr.Get(e)
+            if isinstance(e, expr.Get):
+                get = e
                 return expr.Set(get.object, get.name, value)
 
             self.error(equals, "Invalid assignment target")
@@ -328,6 +328,8 @@ class Parser:
         if self.match([tokentypes.TokenType.NUMBER,
                        tokentypes.TokenType.STRING]):
             return expr.Literal(self.previous().literal)
+        if self.match([tokentypes.TokenType.THIS]):
+            return expr.This(self.previous())
         if self.match([tokentypes.TokenType.IDENTIFIER]):
             return expr.Variable(self.previous())
         if self.match([tokentypes.TokenType.LEFT_PAREN]):
@@ -403,7 +405,8 @@ class Parser:
         self.advance()
 
         while not self.is_at_end():
-            if self.previous.type == tokentypes.TokenType.SEMICOLON:
+            # TODO: What's going on here
+            if self.previous().tokentype == tokentypes.TokenType.SEMICOLON:
                 return
 
             token_type = self.peek().tokentype

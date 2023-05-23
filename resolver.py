@@ -16,9 +16,15 @@ class Resolver(expr.Visitor, stmt.Visitor):
         NONE = "NONE"
         FUNCTION = "FUNCTION"
         METHOD = "METHOD"
-    
+        INITIALIZER = "INITIALIZER"
+
+    class ClassType(Enum):
+        NONE = "NONE"
+        CLASS = "CLASS"
+
     scopes = []
     current_fn = FunctionType.NONE
+    current_cls = ClassType.NONE
 
     def __init__(self, interpreter):
         self.interpreter = interpreter
@@ -30,11 +36,20 @@ class Resolver(expr.Visitor, stmt.Visitor):
         return None
 
     def visit_class_stmt(self, s):
+        enclosing_cls = self.current_cls
+        self.current_cls = self.ClassType.CLASS
         self.declare(s.name)
         self.define(s.name)
+        self.begin_scope()
+        # using last index instead of peek()
+        self.scopes[-1]["this"] = True
         for method in s.methods:
             declaration = self.FunctionType.METHOD
+            if method.name.lexeme == "init":
+                declaration = self.FunctionType.INITIALIZER
             self.resolve_function(method, declaration)
+        self.end_scope()
+        self.current_cls = enclosing_cls
         return None
 
     def visit_expression_stmt(self, s):
@@ -67,6 +82,9 @@ class Resolver(expr.Visitor, stmt.Visitor):
             lox.Lox.error(s.keyword, 
                 "Can't return from top level code.")
         if s.value is not None:
+            if self.current_fn == self.FunctionType.INITIALIZER:
+                lox.Lox.error(s.keyword,
+                    "Can't return a value from an initializer")
             self.resolve(s.value)
         return None
 
@@ -118,6 +136,14 @@ class Resolver(expr.Visitor, stmt.Visitor):
     def visit_set_expr(self, e):
         self.resolve(e.value)
         self.resolve(e.object)
+        return None
+
+    def visit_this_expr(self, e):
+        if self.current_cls == self.ClassType.NONE:
+            lox.Lox.error(e.keyword,
+                "Can't use 'this' outisde of a class.")
+            return None
+        self.resolve_local(e, e.keyword)
         return None
 
     def visit_unary_expr(self, e):

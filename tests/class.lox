@@ -1,8 +1,6 @@
-class DevonshireCream {
-  eat() {
-    print "mmmmmmmmmmm tasty!";
+class Foo {
+  init() {
+    return;
   }
 }
-
-DevonshireCream().eat();
 

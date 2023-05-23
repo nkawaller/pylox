@@ -75,7 +75,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         convert it to its runtime representation
         """
 
-        function = loxfunction.LoxFunction(s, self.environment)
+        function = loxfunction.LoxFunction(s, self.environment, False)
         # Bind fn to a var in current environment
         self.environment.define(s.name.lexeme, function)
         return None
@@ -115,7 +115,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
                 e.name, "Only instances have fields."
             )
         value = self.evaluate(e.value)
-        li.LoxInstance(object).set(e.name, value)
+        object.set(e.name, value)
+        return value
+
+    def visit_this_expr(self, e):
+        return self.lookup_variable(e.keyword, e)
 
     def visit_grouping_expr(self, e):
         """Evaluate grouping expressions"""
@@ -218,7 +222,8 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.environment.define(s.name.lexeme, None)
         methods = {}
         for method in s.methods:
-            fn = loxfunction.LoxFunction(method, self.environment)
+            fn = loxfunction.LoxFunction(
+                method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = fn
         klass = loxclass.LoxClass(s.name.lexeme, methods)
         self.environment.assign(s.name, klass)
