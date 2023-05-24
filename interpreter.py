@@ -219,13 +219,19 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return None
 
     def visit_class_stmt(self, s):
+        superclass = None
+        if s.superclass:
+            superclass = self.evaluate(s.superclass)
+            if not isinstance(superclass, loxclass.LoxClass):
+                raise runtimeexception.RuntimeException(
+                    s.superclass.name, "Superclass must be a class.")
         self.environment.define(s.name.lexeme, None)
         methods = {}
         for method in s.methods:
             fn = loxfunction.LoxFunction(
                 method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = fn
-        klass = loxclass.LoxClass(s.name.lexeme, methods)
+        klass = loxclass.LoxClass(s.name.lexeme, superclass, methods)
         self.environment.assign(s.name, klass)
         return None
 

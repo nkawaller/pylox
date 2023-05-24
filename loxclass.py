@@ -10,8 +10,9 @@ class LoxClass(lc.LoxCallable):
     instances of itself.
     """
 
-    def __init__(self, name, methods):
+    def __init__(self, name, superclass, methods):
         self.name = name
+        self.superclass = superclass
         self.methods = methods          # TODO: this was supposed to be a cls property; may need to revisit
 
     def __str__(self):
@@ -20,6 +21,8 @@ class LoxClass(lc.LoxCallable):
     def find_method(self, name):
         if name in self.methods:
             return self.methods[name]
+        if self.superclass:
+            return self.superclass.find_method(name)
         return None
 
     def call(self, interpreter, arguments):

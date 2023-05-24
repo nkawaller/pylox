@@ -40,6 +40,11 @@ class Resolver(expr.Visitor, stmt.Visitor):
         self.current_cls = self.ClassType.CLASS
         self.declare(s.name)
         self.define(s.name)
+        if s.superclass and s.name.lexeme == s.superclass.name.lexeme:
+            lox.Lox.error(s.superclass.name,
+                "A class can't inherit from itself.")
+        if s.superclass:
+            self.resolve(s.superclass)
         self.begin_scope()
         # using last index instead of peek()
         self.scopes[-1]["this"] = True
