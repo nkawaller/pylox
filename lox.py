@@ -86,10 +86,6 @@ class Lox:
         """
         s = scanner.Scanner(source)
         tokens = s.scan_tokens()
-        # print('------------------------------')
-        # for token in tokens:
-        #     print(f"{str(token)}")
-        # print('------------------------------')
         p = parser.Parser(tokens)
         statements = p.parse()
         if cls.had_error:

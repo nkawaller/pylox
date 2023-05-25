@@ -312,7 +312,6 @@ class Parser:
             if self.match([tokentypes.TokenType.DOT]):
                 name = self.consume(
                     tokentypes.TokenType.IDENTIFIER, "Expect property name after '.'.")
-                # TODO: two 'e' vars here - need to rename one?
                 e = expr.Get(e, name)
             else:
                 break
@@ -333,6 +332,14 @@ class Parser:
         if self.match([tokentypes.TokenType.NUMBER,
                        tokentypes.TokenType.STRING]):
             return expr.Literal(self.previous().literal)
+        if self.match([tokentypes.TokenType.SUPER]):
+            keyword = self.previous()
+            self.consume(tokentypes.TokenType.DOT,
+                "Expect '.' after 'super'.")
+            method = self.consume(
+                tokentypes.TokenType.IDENTIFIER,
+                "Expect superclass method name.")
+            return expr.Super(keyword, method)
         if self.match([tokentypes.TokenType.THIS]):
             return expr.This(self.previous())
         if self.match([tokentypes.TokenType.IDENTIFIER]):
@@ -410,7 +417,6 @@ class Parser:
         self.advance()
 
         while not self.is_at_end():
-            # TODO: What's going on here
             if self.previous().tokentype == tokentypes.TokenType.SEMICOLON:
                 return
 

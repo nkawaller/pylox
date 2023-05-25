@@ -57,7 +57,6 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visit_assign_expr(self, e):
         value = self.evaluate(e.value)
-        # Should this be: distance = self.locals.get(e.name)
         distance = self.locals.get(e, None)
         if distance:
             self.environment.assign_at(distance, e.name, value)
@@ -65,9 +64,8 @@ class Interpreter(expr.Visitor, stmt.Visitor):
             self.globals.assign(e.name, value)
         return value
         
-    def visit_expression_stmt(self, stmt):
-        # TODO: rename to s?
-        self.evaluate(stmt.expression)
+    def visit_expression_stmt(self, s):
+        self.evaluate(s.expression)
         return None
 
     def visit_function_stmt(self, s):
@@ -117,6 +115,16 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         value = self.evaluate(e.value)
         object.set(e.name, value)
         return value
+
+    def visit_super_expr(self, e):
+        distance = self.locals.get(e)
+        superclass = self.environment.get_at(distance, "super")
+        object = self.environment.get_at(distance - 1, "this")
+        method = superclass.find_method(e.method.lexeme)
+        if method is None:
+            raise runtimeexception.RuntimeException(e.method,
+                f"Undefined property '{e.method.lexeme}'.")
+        return method.bind(object)
 
     def visit_this_expr(self, e):
         return self.lookup_variable(e.keyword, e)
@@ -226,12 +234,17 @@ class Interpreter(expr.Visitor, stmt.Visitor):
                 raise runtimeexception.RuntimeException(
                     s.superclass.name, "Superclass must be a class.")
         self.environment.define(s.name.lexeme, None)
+        if s.superclass:
+            self.environment = environment.Environment(self.environment)
+            self.environment.define("super", superclass)
         methods = {}
         for method in s.methods:
             fn = loxfunction.LoxFunction(
                 method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = fn
         klass = loxclass.LoxClass(s.name.lexeme, superclass, methods)
+        if superclass:
+            self.environment = self.environment.enclosing 
         self.environment.assign(s.name, klass)
         return None
 

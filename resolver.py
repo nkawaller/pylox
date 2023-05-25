@@ -21,6 +21,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
     class ClassType(Enum):
         NONE = "NONE"
         CLASS = "CLASS"
+        SUBCLASS = "SUBCLASS"
 
     scopes = []
     current_fn = FunctionType.NONE
@@ -44,7 +45,11 @@ class Resolver(expr.Visitor, stmt.Visitor):
             lox.Lox.error(s.superclass.name,
                 "A class can't inherit from itself.")
         if s.superclass:
+            self.current_cls = self.ClassType.SUBCLASS
             self.resolve(s.superclass)
+        if s.superclass:
+            self.begin_scope()
+            self.scopes[-1]["super"] = True
         self.begin_scope()
         # using last index instead of peek()
         self.scopes[-1]["this"] = True
@@ -54,6 +59,8 @@ class Resolver(expr.Visitor, stmt.Visitor):
                 declaration = self.FunctionType.INITIALIZER
             self.resolve_function(method, declaration)
         self.end_scope()
+        if s.superclass:
+            self.end_scope()
         self.current_cls = enclosing_cls
         return None
 
@@ -141,6 +148,16 @@ class Resolver(expr.Visitor, stmt.Visitor):
     def visit_set_expr(self, e):
         self.resolve(e.value)
         self.resolve(e.object)
+        return None
+
+    def visit_super_expr(self, e):
+        if self.current_cls == self.ClassType.NONE:
+            lox.Lox.error(e.keyword,
+                "Can't use 'super' outside of a class.")
+        elif self.current_cls != self.ClassType.SUBCLASS:
+            lox.Lox.error(e.keyword,
+                "can't use 'super' in a class with no superclass.")
+        self.resolve_local(e, e.keyword)
         return None
 
     def visit_this_expr(self, e):
