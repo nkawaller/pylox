@@ -9,19 +9,20 @@ script : python3 lox.py <filename>
 prompt : python3 lox.py
 """
 
-import sys
 import parser
-import resolver
-import scanner
-import tokentypes
-import interpreter
+import sys
+
+from interpreter import Interpreter
+from resolver import Resolver
+from scanner import Scanner
+from tokentypes import TokenType
 
 
 class Lox:
     """Class used to run Lox"""
 
     args = sys.argv[1:]
-    interpreter = interpreter.Interpreter()
+    interpreter = Interpreter()
     had_error = False
     had_runtime_error = False
 
@@ -48,7 +49,7 @@ class Lox:
         :return: None
         """
         try:
-            with open(path, "r", encoding='utf-8') as reader:
+            with open(path, "r", encoding="utf-8") as reader:
                 all_bytes = reader.read()
                 cls.run(all_bytes)
                 if cls.had_error:  # May need to adjust this
@@ -84,15 +85,16 @@ class Lox:
         :param source: input from either file or interactive prompt
         :return: None
         """
-        s = scanner.Scanner(source)
-        tokens = s.scan_tokens()
-        p = parser.Parser(tokens)
-        statements = p.parse()
+        scanner = Scanner(source)
+        tokens = scanner.scan_tokens()
+        prsr = parser.Parser(tokens)
+        statements = prsr.parse()
         if cls.had_error:
-            return;
-        r = resolver.Resolver(cls.interpreter)
-        r.resolve(statements)
-        if cls.had_error: return
+            return
+        resolver = Resolver(cls.interpreter)
+        resolver.resolve(statements)
+        if cls.had_error:
+            return
         cls.interpreter.interpret(statements)
 
     @classmethod
@@ -105,7 +107,7 @@ class Lox:
 
     @classmethod
     def parse_error(cls, token, message):
-        if token.tokentype == tokentypes.TokenType.EOF:
+        if token.tokentype == TokenType.EOF:
             cls.report(token.line, "at end", message)
         else:
             cls.report(token.line, f" at '{token.lexeme}'", message)

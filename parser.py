@@ -1,12 +1,14 @@
 """Parser Class"""
 
 import expr
-import lox
+from lox import Lox
 import stmt
-import tokentypes
+from tokentypes import TokenType
+
 
 class ParseError(Exception):
     pass
+
 
 class Parser:
     """Recursive descent parser"""
@@ -33,11 +35,11 @@ class Parser:
 
     def declaration(self):
         try:
-            if self.match([tokentypes.TokenType.CLASS]):
+            if self.match([TokenType.CLASS]):
                 return self.class_declaration()
-            if self.match([tokentypes.TokenType.FUN]):
+            if self.match([TokenType.FUN]):
                 return self.function("function")
-            if self.match([tokentypes.TokenType.VAR]):
+            if self.match([TokenType.VAR]):
                 return self.var_declaration()
             return self.statement()
         except ParseError:
@@ -45,66 +47,61 @@ class Parser:
             return None
 
     def class_declaration(self):
-        name = self.consume(
-            tokentypes.TokenType.IDENTIFIER, "Expect a class name.")
+        name = self.consume(TokenType.IDENTIFIER, "Expect a class name.")
         superclass = None
-        if self.match([tokentypes.TokenType.LESS]):
-            self.consume(
-                tokentypes.TokenType.IDENTIFIER, "Expect a superclass name.")
+        if self.match([TokenType.LESS]):
+            self.consume(TokenType.IDENTIFIER, "Expect a superclass name.")
             superclass = expr.Variable(self.previous())
-        self.consume(
-            tokentypes.TokenType.LEFT_BRACE, "Expect '{' before class body.")
+        self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.")
         methods = []
-        while not self.check(
-            tokentypes.TokenType.RIGHT_BRACE) and not self.is_at_end():
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
             methods.append(self.function("method"))
-        self.consume(
-            tokentypes.TokenType.RIGHT_BRACE, "Expect '}' after class body.")
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
         return stmt.Class(name, superclass, methods)
 
     def statement(self):
-        if self.match([tokentypes.TokenType.FOR]):
+        if self.match([TokenType.FOR]):
             return self.for_statement()
-        if self.match([tokentypes.TokenType.IF]):
+        if self.match([TokenType.IF]):
             return self.if_statement()
-        if self.match([tokentypes.TokenType.PRINT]):
+        if self.match([TokenType.PRINT]):
             return self.print_statement()
-        if self.match([tokentypes.TokenType.RETURN]):
+        if self.match([TokenType.RETURN]):
             return self.return_statement()
-        if self.match([tokentypes.TokenType.WHILE]):
+        if self.match([TokenType.WHILE]):
             return self.while_statement()
-        if self.match([tokentypes.TokenType.LEFT_BRACE]):
+        if self.match([TokenType.LEFT_BRACE]):
             return stmt.Block(self.block())
         return self.expression_statement()
 
     def for_statement(self):
         """Method to parse for loops"""
 
-        self.consume(tokentypes.TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
         initializer = None
-        if self.match([tokentypes.TokenType.SEMICOLON]):
+        if self.match([TokenType.SEMICOLON]):
             initializer = None
-        elif self.match([tokentypes.TokenType.VAR]):
+        elif self.match([TokenType.VAR]):
             initializer = self.var_declaration()
         else:
             initializer = self.expression_statement()
 
         condition = None
-        if not self.check(tokentypes.TokenType.SEMICOLON):
+        if not self.check(TokenType.SEMICOLON):
             condition = self.expression()
-        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after loop condtion.")
+        self.consume(TokenType.SEMICOLON, "Expect ';' after loop condtion.")
 
         increment = None
-        if not self.check(tokentypes.TokenType.RIGHT_PAREN):
+        if not self.check(TokenType.RIGHT_PAREN):
             increment = self.expression()
-        self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
 
         body = self.statement()
 
         if increment is not None:
             body = stmt.Block([body, stmt.Expression(increment)])
 
-        if condition == None:
+        if condition is None:
             condition = expr.Literal(True)
         body = stmt.While(condition, body)
 
@@ -116,87 +113,87 @@ class Parser:
     def if_statement(self):
         """Method to parse if-statements"""
 
-        self.consume(tokentypes.TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
         condition = self.expression()
-        self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
 
         then_branch = self.statement()
         else_branch = None
-        if self.match([tokentypes.TokenType.ELSE]):
+        if self.match([TokenType.ELSE]):
             else_branch = self.statement()
 
         return stmt.If(condition, then_branch, else_branch)
 
     def print_statement(self):
         value = self.expression()
-        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Print(value)
 
     def return_statement(self):
         keyword = self.previous()
         value = None
-        if not self.check([tokentypes.TokenType.SEMICOLON]):
+        if not self.check([TokenType.SEMICOLON]):
             value = self.expression()
-        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after return value.")
+        self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
         return stmt.Return(keyword, value)
 
     def var_declaration(self):
-        name = self.consume(tokentypes.TokenType.IDENTIFIER, "Expect variable name")
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name")
         initializer = None
-        if self.match([tokentypes.TokenType.EQUAL]):
+        if self.match([TokenType.EQUAL]):
             initializer = self.expression()
-        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return stmt.Var(name, initializer)
 
     def while_statement(self):
         """Parse while statements"""
 
-        self.consume(tokentypes.TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
         condition = self.expression()
-        self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after condition.")
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
         body = self.statement()
         return stmt.While(condition, body)
 
     def expression_statement(self):
         e = self.expression()
-        self.consume(tokentypes.TokenType.SEMICOLON, "Expect ';' after value.")
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Expression(e)
 
     def function(self, kind):
-        name = self.consume(tokentypes.TokenType.IDENTIFIER, f"Expect {kind} name.")
-        self.consume(tokentypes.TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
+        name = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
+        self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
         parameters = []
-        if not self.check(tokentypes.TokenType.RIGHT_PAREN):
+        if not self.check(TokenType.RIGHT_PAREN):
             while True:
                 if len(parameters) >= 255:
                     self.error(self.peek(), "Can't have more than 255 parameters.")
                 parameters.append(
-                    self.consume(
-                        tokentypes.TokenType.IDENTIFIER, "Expect parameter name."))
-                if not self.match([tokentypes.TokenType.COMMA]):
+                    self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+                )
+                if not self.match([TokenType.COMMA]):
                     break
-        self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
-        self.consume(tokentypes.TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.")
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+        self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.")
         body = self.block()
         return stmt.Function(name, parameters, body)
 
     def block(self):
         """Group statement within a set of {} together"""
-        
+
         statements = []
-        while not self.check(tokentypes.TokenType.RIGHT_BRACE) and not self.is_at_end():
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
             statements.append(self.declaration())
-        self.consume(tokentypes.TokenType.RIGHT_BRACE, "Expect '}' after block.")
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
         return statements
 
     def assignment(self):
-        """Determine if the = is being used to assign a value. This 
-        fn deals with the fact that we only have a single token 
+        """Determine if the = is being used to assign a value. This
+        fn deals with the fact that we only have a single token
         lookahead and no backtracking
         """
 
         e = self.is_or()
-        if self.match([tokentypes.TokenType.EQUAL]):
+        if self.match([TokenType.EQUAL]):
             equals = self.previous()
             value = self.assignment()
 
@@ -214,7 +211,7 @@ class Parser:
         """Parse 'or' expressions"""
 
         e = self.is_and()
-        while self.match([tokentypes.TokenType.OR]):
+        while self.match([TokenType.OR]):
             operator = self.previous()
             right = self.is_and()
             e = expr.Logical(e, operator, right)
@@ -224,19 +221,18 @@ class Parser:
         """Parse 'and' expressions"""
 
         e = self.equality()
-        while self.match([tokentypes.TokenType.AND]):
+        while self.match([TokenType.AND]):
             operator = self.previous()
             right = self.equality()
             e = expr.Logical(e, operator, right)
         return e
-        
+
     def equality(self):
         """Determine if we're looking at an equality expression"""
 
         e = self.comparison()
 
-        while self.match([tokentypes.TokenType.BANG_EQUAL,
-                          tokentypes.TokenType.EQUAL_EQUAL]):
+        while self.match([TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL]):
             operator = self.previous()
             right = self.comparison()
             e = expr.Binary(e, operator, right)
@@ -246,10 +242,14 @@ class Parser:
         """Determine if we're looking at a comparison expression"""
 
         e = self.term()
-        while self.match([tokentypes.TokenType.GREATER,
-                          tokentypes.TokenType.GREATER_EQUAL,
-                          tokentypes.TokenType.LESS,
-                          tokentypes.TokenType.LESS_EQUAL]):
+        while self.match(
+            [
+                TokenType.GREATER,
+                TokenType.GREATER_EQUAL,
+                TokenType.LESS,
+                TokenType.LESS_EQUAL,
+            ]
+        ):
             operator = self.previous()
             right = self.term()
             e = expr.Binary(e, operator, right)
@@ -259,8 +259,7 @@ class Parser:
         """Determine if we're looking at addition or subtraction"""
 
         e = self.factor()
-        while self.match([tokentypes.TokenType.MINUS,
-                          tokentypes.TokenType.PLUS]):
+        while self.match([TokenType.MINUS, TokenType.PLUS]):
             operator = self.previous()
             right = self.factor()
             e = expr.Binary(e, operator, right)
@@ -270,20 +269,18 @@ class Parser:
         """Determine if we're looking at multiplication or division"""
 
         e = self.unary()
-        while self.match([tokentypes.TokenType.SLASH,
-                          tokentypes.TokenType.STAR]):
+        while self.match([TokenType.SLASH, TokenType.STAR]):
             operator = self.previous()
             right = self.unary()
             e = expr.Binary(e, operator, right)
         return e
 
     def unary(self):
-        """Look at current token to see if its a unary expression 
+        """Look at current token to see if its a unary expression
         (! or -)
         """
 
-        if self.match([tokentypes.TokenType.BANG,
-                       tokentypes.TokenType.MINUS]):
+        if self.match([TokenType.BANG, TokenType.MINUS]):
             operator = self.previous()
             right = self.unary()
             return expr.Unary(operator, right)
@@ -292,26 +289,27 @@ class Parser:
 
     def finish_call(self, callee):
         arguments = []
-        if not self.check(tokentypes.TokenType.RIGHT_PAREN):
+        if not self.check(TokenType.RIGHT_PAREN):
             while True:
                 if len(arguments) >= 255:
                     self.error(self.peek(), "Can't have more than 255 arguments.")
                 arguments.append(self.expression())
-                if not self.match([tokentypes.TokenType.COMMA]):
+                if not self.match([TokenType.COMMA]):
                     break
-        paren = self.consume(tokentypes.TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
+        paren = self.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
         return expr.Call(callee, paren, arguments)
 
     def call(self):
         """Determine if we're looking at a function call"""
-        
+
         e = self.primary()
         while True:
-            if self.match([tokentypes.TokenType.LEFT_PAREN]):
+            if self.match([TokenType.LEFT_PAREN]):
                 e = self.finish_call(e)
-            if self.match([tokentypes.TokenType.DOT]):
+            if self.match([TokenType.DOT]):
                 name = self.consume(
-                    tokentypes.TokenType.IDENTIFIER, "Expect property name after '.'.")
+                    TokenType.IDENTIFIER, "Expect property name after '.'."
+                )
                 e = expr.Get(e, name)
             else:
                 break
@@ -319,35 +317,32 @@ class Parser:
 
     def primary(self):
         """If we haven't matched any of the other rules, then we're
-        working with primary expressions (the highest precedence 
+        working with primary expressions (the highest precedence
         level
         """
 
-        if self.match([tokentypes.TokenType.FALSE]):
+        if self.match([TokenType.FALSE]):
             return expr.Literal(False)
-        if self.match([tokentypes.TokenType.TRUE]):
+        if self.match([TokenType.TRUE]):
             return expr.Literal(True)
-        if self.match([tokentypes.TokenType.NIL]):
+        if self.match([TokenType.NIL]):
             return expr.Literal(None)
-        if self.match([tokentypes.TokenType.NUMBER,
-                       tokentypes.TokenType.STRING]):
+        if self.match([TokenType.NUMBER, TokenType.STRING]):
             return expr.Literal(self.previous().literal)
-        if self.match([tokentypes.TokenType.SUPER]):
+        if self.match([TokenType.SUPER]):
             keyword = self.previous()
-            self.consume(tokentypes.TokenType.DOT,
-                "Expect '.' after 'super'.")
+            self.consume(TokenType.DOT, "Expect '.' after 'super'.")
             method = self.consume(
-                tokentypes.TokenType.IDENTIFIER,
-                "Expect superclass method name.")
+                TokenType.IDENTIFIER, "Expect superclass method name."
+            )
             return expr.Super(keyword, method)
-        if self.match([tokentypes.TokenType.THIS]):
+        if self.match([TokenType.THIS]):
             return expr.This(self.previous())
-        if self.match([tokentypes.TokenType.IDENTIFIER]):
+        if self.match([TokenType.IDENTIFIER]):
             return expr.Variable(self.previous())
-        if self.match([tokentypes.TokenType.LEFT_PAREN]):
+        if self.match([TokenType.LEFT_PAREN]):
             e = self.expression()
-            self.consume(tokentypes.TokenType.RIGHT_PAREN,
-                         "Expect ')' after expression.")
+            self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return expr.Grouping(e)
         raise self.error(self.peek(), "Expect expression.")
 
@@ -365,7 +360,7 @@ class Parser:
         return False
 
     def consume(self, type, message):
-        """Look for the closing paren and report error if some 
+        """Look for the closing paren and report error if some
         other token is found
         """
         if self.check(type):
@@ -374,7 +369,7 @@ class Parser:
             self.error(self.peek(), message)
 
     def check(self, type):
-        """Look at the current token to see if it matches, but don't 
+        """Look at the current token to see if it matches, but don't
         consume it
         """
 
@@ -392,7 +387,7 @@ class Parser:
     def is_at_end(self):
         """Indicate when we've consumed all the tokens"""
 
-        return self.peek().tokentype == tokentypes.TokenType.EOF
+        return self.peek().tokentype == TokenType.EOF
 
     def peek(self):
         """Return current token"""
@@ -406,30 +401,31 @@ class Parser:
     def error(self, token, message):
         """Report error if we see an unexpected token"""
 
-        lox.Lox.parse_error(token, message)
+        Lox.parse_error(token, message)
         return ParseError()
 
     def synchronize(self):
         """If we encounter an error, discard tokens until we find the
         beginning of the next statement
         """
-        
+
         self.advance()
 
         while not self.is_at_end():
-            if self.previous().tokentype == tokentypes.TokenType.SEMICOLON:
+            if self.previous().tokentype == TokenType.SEMICOLON:
                 return
 
             token_type = self.peek().tokentype
             if token_type in {
-                tokentypes.TokenType.CLASS,
-                tokentypes.TokenType.FUN,
-                tokentypes.TokenType.VAR,
-                tokentypes.TokenType.FOR,
-                tokentypes.TokenType.IF,
-                tokentypes.TokenType.WHILE,
-                tokentypes.TokenType.PRINT,
-                tokentypes.TokenType.RETURN}:
+                TokenType.CLASS,
+                TokenType.FUN,
+                TokenType.VAR,
+                TokenType.FOR,
+                TokenType.IF,
+                TokenType.WHILE,
+                TokenType.PRINT,
+                TokenType.RETURN,
+            }:
                 return
-            
+
             self.advance()

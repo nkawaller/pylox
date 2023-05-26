@@ -10,7 +10,7 @@ import loxcallable
 import returnvalue
 import runtimeexception
 import stmt
-import tokentypes
+from tokentypes import TokenType
 
 
 class Interpreter(expr.Visitor, stmt.Visitor):
@@ -98,7 +98,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         """Evaluate logical expressions"""
 
         left = self.evaluate(e.left)
-        if e.operator.tokentype == tokentypes.TokenType.OR:
+        if e.operator.tokentype == TokenType.OR:
             if self.is_truthy(left):
                 return left
         else:
@@ -140,8 +140,8 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         right = self.evaluate(e.right)
 
         unary_map = {
-            tokentypes.TokenType.BANG: lambda right: not self.is_truthy(right),
-            tokentypes.TokenType.MINUS: lambda right, op=e.operator: (
+            TokenType.BANG: lambda right: not self.is_truthy(right),
+            TokenType.MINUS: lambda right, op=e.operator: (
                 -float(right) if self.check_number_operand(op, right) else None
             ),
         }
@@ -266,48 +266,48 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         right = self.evaluate(e.right)
 
         binary_map = {
-            tokentypes.TokenType.MINUS: lambda left, right, op=e.operator: (
+            TokenType.MINUS: lambda left, right, op=e.operator: (
                 float(left) - float(right)
                 if self.check_number_operands(op, left, right)
                 else None
             ),
-            tokentypes.TokenType.SLASH: lambda left, right, op=e.operator: (
+            TokenType.SLASH: lambda left, right, op=e.operator: (
                 float(left) / float(right)
                 if self.check_number_operands(op, left, right)
                 else None
             ),
-            tokentypes.TokenType.STAR: lambda left, right, op=e.operator: (
+            TokenType.STAR: lambda left, right, op=e.operator: (
                 float(left) * float(right)
                 if self.check_number_operands(op, left, right)
                 else None
             ),
-            tokentypes.TokenType.PLUS: lambda left, right, op=e.operator: self.handle_arithmetic_operator(
+            TokenType.PLUS: lambda left, right, op=e.operator: self.handle_arithmetic_operator(
                 left, right, op
             ),
-            tokentypes.TokenType.GREATER: lambda left, right, op=e.operator: (
+            TokenType.GREATER: lambda left, right, op=e.operator: (
                 float(left) > float(right)
                 if self.check_number_operands(op, left, right)
                 else None
             ),
-            tokentypes.TokenType.GREATER_EQUAL: lambda left, right, op=e.operator: (
+            TokenType.GREATER_EQUAL: lambda left, right, op=e.operator: (
                 float(left) >= float(right)
                 if self.check_number_operands(op, left, right)
                 else None
             ),
-            tokentypes.TokenType.LESS: lambda left, right, op=e.operator: (
+            TokenType.LESS: lambda left, right, op=e.operator: (
                 float(left) < float(right)
                 if self.check_number_operands(op, left, right)
                 else None
             ),
-            tokentypes.TokenType.LESS_EQUAL: lambda left, right, op=e.operator: (
+            TokenType.LESS_EQUAL: lambda left, right, op=e.operator: (
                 float(left) <= float(right)
                 if self.check_number_operands(op, left, right)
                 else None
             ),
-            tokentypes.TokenType.BANG_EQUAL: lambda left, right: not self.is_equal(
+            TokenType.BANG_EQUAL: lambda left, right: not self.is_equal(
                 left, right
             ),
-            tokentypes.TokenType.EQUAL_EQUAL: lambda left, right: self.is_equal(
+            TokenType.EQUAL_EQUAL: lambda left, right: self.is_equal(
                 left, right
             ),
         }
