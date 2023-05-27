@@ -1,10 +1,13 @@
 """Clock native function"""
 
 
-import loxcallable
 import time
 
+import loxcallable
+
+
 class Clock(loxcallable.LoxCallable):
+    """Example of a native function"""
 
     def arity(self):
         return 0
@@ -14,3 +17,4 @@ class Clock(loxcallable.LoxCallable):
 
     def __str__(self):
         return "<native fn>"
+ 

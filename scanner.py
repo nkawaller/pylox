@@ -3,7 +3,7 @@
 import token
 
 import lox
-import tokentypes
+from tokentypes import TokenType
 
 
 class Scanner:
@@ -19,35 +19,35 @@ class Scanner:
         self.line = 1
 
     character_map = {
-        "(": tokentypes.TokenType.LEFT_PAREN,
-        ")": tokentypes.TokenType.RIGHT_PAREN,
-        "{": tokentypes.TokenType.LEFT_BRACE,
-        "}": tokentypes.TokenType.RIGHT_BRACE,
-        ",": tokentypes.TokenType.COMMA,
-        ".": tokentypes.TokenType.DOT,
-        "-": tokentypes.TokenType.MINUS,
-        "+": tokentypes.TokenType.PLUS,
-        ";": tokentypes.TokenType.SEMICOLON,
-        "*": tokentypes.TokenType.STAR,
+        "(": TokenType.LEFT_PAREN,
+        ")": TokenType.RIGHT_PAREN,
+        "{": TokenType.LEFT_BRACE,
+        "}": TokenType.RIGHT_BRACE,
+        ",": TokenType.COMMA,
+        ".": TokenType.DOT,
+        "-": TokenType.MINUS,
+        "+": TokenType.PLUS,
+        ";": TokenType.SEMICOLON,
+        "*": TokenType.STAR,
         "!": lambda self: self.add_token(
-            tokentypes.TokenType.BANG_EQUAL
+            TokenType.BANG_EQUAL
             if self.match("=")
-            else tokentypes.TokenType.BANG
+            else TokenType.BANG
         ),
         "=": lambda self: self.add_token(
-            tokentypes.TokenType.EQUAL_EQUAL
+            TokenType.EQUAL_EQUAL
             if self.match("=")
-            else tokentypes.TokenType.EQUAL
+            else TokenType.EQUAL
         ),
         "<": lambda self: self.add_token(
-            tokentypes.TokenType.LESS_EQUAL
+            TokenType.LESS_EQUAL
             if self.match("=")
-            else tokentypes.TokenType.LESS
+            else TokenType.LESS
         ),
         ">": lambda self: self.add_token(
-            tokentypes.TokenType.GREATER_EQUAL
+            TokenType.GREATER_EQUAL
             if self.match("=")
-            else tokentypes.TokenType.GREATER
+            else TokenType.GREATER
         ),
         "/": lambda self: self.process_slash(),
         " ": lambda self: None,
@@ -58,22 +58,22 @@ class Scanner:
     }
 
     keywords = {
-        "and": tokentypes.TokenType.AND,
-        "class": tokentypes.TokenType.CLASS,
-        "else": tokentypes.TokenType.ELSE,
-        "false": tokentypes.TokenType.FALSE,
-        "for": tokentypes.TokenType.FOR,
-        "fun": tokentypes.TokenType.FUN,
-        "if": tokentypes.TokenType.IF,
-        "nil": tokentypes.TokenType.NIL,
-        "or": tokentypes.TokenType.OR,
-        "print": tokentypes.TokenType.PRINT,
-        "return": tokentypes.TokenType.RETURN,
-        "super": tokentypes.TokenType.SUPER,
-        "this": tokentypes.TokenType.THIS,
-        "true": tokentypes.TokenType.TRUE,
-        "var": tokentypes.TokenType.VAR,
-        "while": tokentypes.TokenType.WHILE,
+        "and": TokenType.AND,
+        "class": TokenType.CLASS,
+        "else": TokenType.ELSE,
+        "false": TokenType.FALSE,
+        "for": TokenType.FOR,
+        "fun": TokenType.FUN,
+        "if": TokenType.IF,
+        "nil": TokenType.NIL,
+        "or": TokenType.OR,
+        "print": TokenType.PRINT,
+        "return": TokenType.RETURN,
+        "super": TokenType.SUPER,
+        "this": TokenType.THIS,
+        "true": TokenType.TRUE,
+        "var": TokenType.VAR,
+        "while": TokenType.WHILE,
     }
 
     def scan_tokens(self):
@@ -88,7 +88,7 @@ class Scanner:
             self.start = self.current
             self.scan_token()
 
-        self.tokens.append(token.Token(tokentypes.TokenType.EOF, "", None, self.line))
+        self.tokens.append(token.Token(TokenType.EOF, "", None, self.line))
         return self.tokens
 
     def scan_token(self):
@@ -122,7 +122,7 @@ class Scanner:
         text = self.source[self.start : self.current]
         tokentype = self.keywords.get(text, None)
         if tokentype is None:
-            tokentype = tokentypes.TokenType.IDENTIFIER
+            tokentype = TokenType.IDENTIFIER
         self.add_token(tokentype)
 
     def number(self):
@@ -139,7 +139,7 @@ class Scanner:
                 self.advance()
 
         self.add_token(
-            tokentypes.TokenType.NUMBER, float(self.source[self.start : self.current])
+            TokenType.NUMBER, float(self.source[self.start : self.current])
         )
 
     def string(self):
@@ -158,7 +158,7 @@ class Scanner:
 
         self.advance()
         value = self.source[self.start + 1 : self.current - 1]
-        self.add_token(tokentypes.TokenType.STRING, value)
+        self.add_token(TokenType.STRING, value)
 
     def match(self, expected):
         """This method is like a conditional advance(). Once we see
@@ -204,7 +204,7 @@ class Scanner:
             while self.peek() != "\n" and not self.is_at_end:
                 self.advance()
         else:
-            self.add_token(tokentypes.TokenType.SLASH)
+            self.add_token(TokenType.SLASH)
 
     def is_alpha(self, c):
         """Return true if a character is a letter

@@ -4,7 +4,6 @@ import runtimeexception as re
 
 
 class LoxInstance:
-
     def __init__(self, klass):
         self.klass = klass
         self.fields = {}
@@ -18,8 +17,7 @@ class LoxInstance:
         method = self.klass.find_method(name.lexeme)
         if method is not None:
             return method.bind(self)
-        raise re.RuntimeException(
-            name, f"Undefined property '{name.lexeme}'.")
+        raise re.RuntimeException(name, f"Undefined property '{name.lexeme}'.")
 
     def set(self, name, value):
         self.fields[name.lexeme] = value

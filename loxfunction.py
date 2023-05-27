@@ -6,7 +6,6 @@ import returnvalue
 
 
 class LoxFunction(loxcallable.LoxCallable):
-
     def __init__(self, declaration, closure, is_initializer):
         self.declaration = declaration
         self.closure = closure
@@ -26,8 +25,7 @@ class LoxFunction(loxcallable.LoxCallable):
     def call(self, interpreter, arguments):
         env = environment.Environment(self.closure)
         for i in range(len(self.declaration.params)):
-            env.define(
-                self.declaration.params[i].lexeme, arguments[i])
+            env.define(self.declaration.params[i].lexeme, arguments[i])
         try:
             interpreter.execute_block(self.declaration.body, env)
         except returnvalue.Return as r:
