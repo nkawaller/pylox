@@ -1,15 +1,15 @@
 """Interpreter class"""
 
 import clock
-import environment
 import expr
-import loxclass
-import loxinstance as li
-import loxfunction
-import loxcallable
-import returnvalue
-import runtimeexception
 import stmt
+from environment import Environment
+from loxcallable import LoxCallable
+from loxclass import LoxClass
+from loxfunction import LoxFunction
+from loxinstance import LoxInstance
+from returnvalue import Return
+from runtimeexception import RuntimeException
 from tokentypes import TokenType
 
 
@@ -17,7 +17,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     """Using the visitor pattern, execute the syntax tree itself"""
 
     def __init__(self):
-        self.globals = environment.Environment()     # fixed reference to outermost global scope
+        self.globals = Environment()     # fixed reference to outermost global scope
         self.environment = self.globals              # keeps track of current environment
         self.globals.define("clock", clock.Clock())  # add 'clock' key:val to the global environment
         self.locals = {}
@@ -27,7 +27,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
             for s in statements:
                 self.execute(s)
         except RuntimeError as e:
-            runtimeexception.RuntimeException(e)
+            RuntimeException(e)
 
     def visit_print_stmt(self, s):
         value = self.evaluate(s.expression)
@@ -38,7 +38,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         value = None
         if s.value is not None:
             value = self.evaluate(s.value)
-        raise returnvalue.Return(value)
+        raise Return(value)
 
     def visit_var_stmt(self, s):
         value = None
@@ -63,7 +63,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         else:
             self.globals.assign(e.name, value)
         return value
-        
+
     def visit_expression_stmt(self, s):
         self.evaluate(s.expression)
         return None
@@ -73,7 +73,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         convert it to its runtime representation
         """
 
-        function = loxfunction.LoxFunction(s, self.environment, False)
+        function = LoxFunction(s, self.environment, False)
         # Bind fn to a var in current environment
         self.environment.define(s.name.lexeme, function)
         return None
@@ -103,13 +103,13 @@ class Interpreter(expr.Visitor, stmt.Visitor):
                 return left
         else:
             if not self.is_truthy(left):
-                    return left
+                return left
         return self.evaluate(e.right)
 
     def visit_set_expr(self, e):
         object = self.evaluate(e.object)
-        if not isinstance(object, li.LoxInstance):
-            raise runtimeexception.RuntimeException(
+        if not isinstance(object, LoxInstance):
+            raise RuntimeException(
                 e.name, "Only instances have fields."
             )
         value = self.evaluate(e.value)
@@ -122,7 +122,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         object = self.environment.get_at(distance - 1, "this")
         method = superclass.find_method(e.method.lexeme)
         if method is None:
-            raise runtimeexception.RuntimeException(e.method,
+            raise RuntimeException(e.method,
                 f"Undefined property '{e.method.lexeme}'.")
         return method.bind(object)
 
@@ -161,12 +161,12 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):
             return True
-        raise runtimeexception.RuntimeException(operator, "Operand must be a number")
+        raise RuntimeException(operator, "Operand must be a number")
 
     def check_number_operands(self, operator, left, right):
         if isinstance(left, float) and isinstance(right, float):
             return True
-        raise runtimeexception.RuntimeException(operator, "Operands must be a numbers")
+        raise RuntimeException(operator, "Operands must be a numbers")
 
     def is_truthy(self, object):
         """Evaluate an object's truthiness. False and Nil are false,
@@ -223,28 +223,28 @@ class Interpreter(expr.Visitor, stmt.Visitor):
             self.environment = previous
 
     def visit_block_stmt(self, s):
-        self.execute_block(s.statements, environment.Environment(self.environment))
+        self.execute_block(s.statements, Environment(self.environment))
         return None
 
     def visit_class_stmt(self, s):
         superclass = None
         if s.superclass:
             superclass = self.evaluate(s.superclass)
-            if not isinstance(superclass, loxclass.LoxClass):
-                raise runtimeexception.RuntimeException(
+            if not isinstance(superclass, LoxClass):
+                raise RuntimeException(
                     s.superclass.name, "Superclass must be a class.")
         self.environment.define(s.name.lexeme, None)
         if s.superclass:
-            self.environment = environment.Environment(self.environment)
+            self.environment = Environment(self.environment)
             self.environment.define("super", superclass)
         methods = {}
         for method in s.methods:
-            fn = loxfunction.LoxFunction(
+            fn = LoxFunction(
                 method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = fn
-        klass = loxclass.LoxClass(s.name.lexeme, superclass, methods)
+        klass = LoxClass(s.name.lexeme, superclass, methods)
         if superclass:
-            self.environment = self.environment.enclosing 
+            self.environment = self.environment.enclosing
         self.environment.assign(s.name, klass)
         return None
 
@@ -255,7 +255,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
             return float(left) + float(right)
         if isinstance(left, str) and isinstance(right, str):
             return str(left) + str(right)
-        raise runtimeexception.RuntimeException(
+        raise RuntimeException(
             op, "Operators must be two numbers or two strings"
         )
 
@@ -319,19 +319,19 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         arguments = []
         for argument in e.arguments:
             arguments.append(self.evaluate(argument))
-        if not isinstance(callee, loxcallable.LoxCallable):
-            raise runtimeexception.RuntimeException(
+        if not isinstance(callee, LoxCallable):
+            raise RuntimeException(
                 e.paren, "Can only call functions and classes.")
         function = callee
         if len(arguments) != function.arity():
-            raise runtimeexception.RuntimeException(
+            raise RuntimeException(
                 e.paren, f"Expected {function.arity()} arguments but got {len(arguments)}.")
         return function.call(self, arguments)
 
     def visit_get_expr(self, e):
         object = self.evaluate(e.object)
-        if isinstance(object, li.LoxInstance):
+        if isinstance(object, LoxInstance):
             return object.get(e.name)
-        raise runtimeexception.RuntimeException(
+        raise RuntimeException(
             "Only instances have properties."
         )
