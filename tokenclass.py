@@ -1,5 +1,6 @@
 """Token class that contains line numbers to report errors."""
 
+
 class Token:
     """Class that combines the lexeme along with its type"""
 

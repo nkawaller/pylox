@@ -1,6 +1,6 @@
 """Scanner class"""
 
-import token
+import tokenclass as token
 
 import lox
 from tokentypes import TokenType
@@ -30,24 +30,16 @@ class Scanner:
         ";": TokenType.SEMICOLON,
         "*": TokenType.STAR,
         "!": lambda self: self.add_token(
-            TokenType.BANG_EQUAL
-            if self.match("=")
-            else TokenType.BANG
+            TokenType.BANG_EQUAL if self.match("=") else TokenType.BANG
         ),
         "=": lambda self: self.add_token(
-            TokenType.EQUAL_EQUAL
-            if self.match("=")
-            else TokenType.EQUAL
+            TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL
         ),
         "<": lambda self: self.add_token(
-            TokenType.LESS_EQUAL
-            if self.match("=")
-            else TokenType.LESS
+            TokenType.LESS_EQUAL if self.match("=") else TokenType.LESS
         ),
         ">": lambda self: self.add_token(
-            TokenType.GREATER_EQUAL
-            if self.match("=")
-            else TokenType.GREATER
+            TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER
         ),
         "/": lambda self: self.process_slash(),
         " ": lambda self: None,
@@ -119,7 +111,7 @@ class Scanner:
         """
         while self.is_alpha_numeric(self.peek()):
             self.advance()
-        text = self.source[self.start : self.current]
+        text = self.source[self.start:self.current]
         tokentype = self.keywords.get(text, None)
         if tokentype is None:
             tokentype = TokenType.IDENTIFIER
@@ -138,9 +130,7 @@ class Scanner:
             while self.is_digit(self.peek()):
                 self.advance()
 
-        self.add_token(
-            TokenType.NUMBER, float(self.source[self.start : self.current])
-        )
+        self.add_token(TokenType.NUMBER, float(self.source[self.start:self.current]))
 
     def string(self):
         """Consume all characters between double quotes
@@ -157,7 +147,7 @@ class Scanner:
             return
 
         self.advance()
-        value = self.source[self.start + 1 : self.current - 1]
+        value = self.source[self.start + 1:self.current - 1]
         self.add_token(TokenType.STRING, value)
 
     def match(self, expected):
@@ -254,5 +244,5 @@ class Scanner:
         :param literal: TODO
         :return: None
         """
-        text = self.source[self.start : self.current]
+        text = self.source[self.start:self.current]
         self.tokens.append(token.Token(tokentype, text, literal, None))
