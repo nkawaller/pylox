@@ -5,8 +5,8 @@ import loxinstance as li
 
 
 class LoxClass(lc.LoxCallable):
-    """Uses call expressions on class objects to create new 
-    instances - kind of like a factory function that generates 
+    """Uses call expressions on class objects to create new
+    instances - kind of like a factory function that generates
     instances of itself.
     """
 

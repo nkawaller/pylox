@@ -17,4 +17,3 @@ class Clock(loxcallable.LoxCallable):
 
     def __str__(self):
         return "<native fn>"
- 
