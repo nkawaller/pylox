@@ -2,18 +2,18 @@
 
 
 import time
+from loxcallable import LoxCallable
+from typing import Any
 
-import loxcallable
 
-
-class Clock(loxcallable.LoxCallable):
+class Clock(LoxCallable):
     """Example of a native function"""
 
-    def arity(self):
+    def arity(self) -> int:
         return 0
 
-    def call(self, interpreter, arguments):
+    def call(self, interpreter: object, arguments: list[Any]) -> float:
         return float(time.time())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "<native fn>"
