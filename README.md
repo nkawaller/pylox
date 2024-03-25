@@ -1,5 +1,5 @@
 # Pylox
-This project is based on the book _Crafting Interpreters_ by Robert Nystrom and it provides a Python implementation of the jlox tree-walk interpreter for the Lox programming language.
+DELETE This project is based on the book _Crafting Interpreters_ by Robert Nystrom and it provides a Python implementation of the jlox tree-walk interpreter for the Lox programming language.
 
 ## Getting Started
 1. Clone the repository: `git clone https://github.com/your-username/pylox.git`
